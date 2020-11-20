@@ -90,6 +90,10 @@ void deallocate_matrix(matrix *mat) {
  */
 double get(matrix *mat, int row, int col) {
     /* TODO: YOUR CODE HERE */
+    double **data = mat->data;
+    double *column = *(data+col); //fine if zero indexed cols, but need to subtract 1 if not
+    double index = *(column+row); //fine if zero indexed rows, but need to subtract 1 if not
+    return index;
 }
 
 /*
@@ -98,6 +102,10 @@ double get(matrix *mat, int row, int col) {
  */
 void set(matrix *mat, int row, int col, double val) {
     /* TODO: YOUR CODE HERE */
+    double **data = mat->data; 
+    double *column = *(data+col); //fine if zero indexed cols, but need to subtract 1 if not
+    *(column+row) = val;
+    //column[row] = val;
 }
 
 /*
@@ -105,6 +113,16 @@ void set(matrix *mat, int row, int col, double val) {
  */
 void fill_matrix(matrix *mat, double val) {
     /* TODO: YOUR CODE HERE */
+    int col = mat->cols;
+    int row = mat->rows;
+    double **data = mat->data;
+    int i, j;
+    for (i=0; i < col; i++) {
+    	double *colIndex = *(data+i);
+    	for (j=0; j< row; j++) {
+    		*(colIndex+j) = val;
+    	}
+    }
 }
 
 /*
@@ -113,6 +131,34 @@ void fill_matrix(matrix *mat, double val) {
  */
 int add_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     /* TODO: YOUR CODE HERE */
+    int rowMat1 = mat1->rows;
+    int colMat1 = mat1->cols;
+    int rowMat2 = mat2->rows;
+    int colMat2 = mat2->cols;
+    int colMatRes = result->cols;
+    int rowMatRes = result->rows;
+    int i, j;
+    double **data1 = mat1->data;
+    double **data2 = mat2->data;
+    double **data3 = result->data;
+
+    if (!(rowMat1 == rowMat2 && colMat1 == colMat2 
+    	&& rowMat1 == rowMatRes && colMat1 == colMatRes)) {
+    	return -1;
+    }
+
+    for (i = 0; i < colMatRes; i++) {
+    	double *colIndexMat1 = *(data1+i);
+    	double *colIndexMat2 = *(data2+i);
+    	double *colIndexMatRes = *(data3+i);
+
+    	for (j = 0; j < rowMatRes; j++) {
+    		*(colIndexMatRes+j) = *(colIndexMat1+j) + *(colIndexMat2+j);  
+    	}
+    }
+
+    return 0;
+
 }
 
 /*
@@ -121,6 +167,33 @@ int add_matrix(matrix *result, matrix *mat1, matrix *mat2) {
  */
 int sub_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     /* TODO: YOUR CODE HERE */
+    int rowMat1 = mat1->rows;
+    int colMat1 = mat1->cols;
+    int rowMat2 = mat2->rows;
+    int colMat2 = mat2->cols;
+    int colMatRes = result->cols;
+    int rowMatRes = result->rows;
+    int i, j;
+    double **data1 = mat1->data;
+    double **data2 = mat2->data;
+    double **data3 = result->data;
+
+    if (!(rowMat1 == rowMat2 && colMat1 == colMat2 
+    	&& rowMat1 == rowMatRes && colMat1 == colMatRes)) {
+    	return -1;
+    }
+
+    for (i = 0; i < colMatRes; i++) {
+    	double *colIndexMat1 = *(data1+i);
+    	double *colIndexMat2 = *(data2+i);
+    	double *colIndexMatRes = *(data3+i);
+
+    	for (j = 0; j < rowMatRes; j++) {
+    		*(colIndexMatRes+j) = *(colIndexMat1+j) - *(colIndexMat2+j);  
+    	}
+    }
+    
+    return 0;
 }
 
 /*
@@ -147,6 +220,28 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
  */
 int neg_matrix(matrix *result, matrix *mat) {
     /* TODO: YOUR CODE HERE */
+    int originalRow = mat->rows;
+    int originalCol = mat->cols;
+    int newRow = result->rows;
+    int newCol = result->cols;
+    int **dataOriginal = mat->data;
+    int **dataNew = result->data;
+    int i, j;
+
+    if (!(originalRow == newRow && originalCol == newCol)) {
+    	return -1;
+    }
+
+    for (i = 0; i < newCol; i++) {
+    	double *colIndexOriginal = *(dataOriginal+i);
+    	double *colIndexNew = *(dataNew+i); 
+    	for (j = 0; j < newRow; j++) {
+    		double beforeNeg = *(colIndexOriginal+j);
+    		*(colIndexNew+j) = -beforeNeg;
+    	}
+    }
+
+    return 0;
 }
 
 /*
@@ -155,5 +250,32 @@ int neg_matrix(matrix *result, matrix *mat) {
  */
 int abs_matrix(matrix *result, matrix *mat) {
     /* TODO: YOUR CODE HERE */
+    int originalRow = mat->rows;
+    int originalCol = mat->cols;
+    int newRow = result->rows;
+    int newCol = result->cols;
+    int i, j;
+    double **dataOriginal = mat->data;
+    double **dataNew = result->data;
+
+    if (!(originalRow == newRow && originalCol == newCol)) {
+    	return -1;
+    }
+
+    for (i = 0; i < newCol; i++) {
+    	double *colIndexOriginal = *(dataOriginal+i);
+    	double *colIndexNew = *(dataNew+i); 
+    	for (j = 0; j < newRow; j++) {
+    		double beforeAbs = *(colIndexOriginal+j);
+    		if (beforeAbs >= 0) {
+    			*(colIndexNew+j) = beforeAbs;
+    		} else {
+    			*(colIndexNew+j) = -beforeAbs;
+    		}
+    	}
+    }
+
+    return 0;
+
 }
 
