@@ -59,6 +59,33 @@ void rand_matrix(matrix *result, unsigned int seed, double low, double high) {
  */
 int allocate_matrix(matrix **mat, int rows, int cols) {
     /* TODO: YOUR CODE HERE */
+    if (rows <= 0 || cols <= 0) {
+        return -1;
+    }
+
+    *mat = malloc(sizeof(matrix));
+    
+    if (mat == NULL) {
+        return -1;
+    }
+
+    mat->rows = rows;
+    mat->cols = cols;
+    mat->is_1d = 0; //maybe fix
+    mat->parent = NULL;
+    mat->ref_cnt = 0; //maybe fix
+
+    double *newCols = calloc(sizeof(double * cols));
+    double **newData = calloc(sizeof(newCols * rows));
+
+    if (newData == NULL) {
+        return -1;
+    }
+
+    mat->newData;
+
+    return 0;
+
 }
 
 /*
@@ -70,6 +97,46 @@ int allocate_matrix(matrix **mat, int rows, int cols) {
  */
 int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offset,
                         int rows, int cols) {
+
+    if (rows <= 0 || cols <= 0 || rows > from->rows || cols > from->cols || row_offset < 0 || col_offset < 0) {
+        return -1;
+    }
+    
+    mat = malloc(sizeof(matrix));
+    
+    if (mat == NULL) {
+        return -1;
+    }
+    
+    mat->rows = rows;
+    mat->cols = cols;
+    mat->is_1d = 0;
+    mat->parent = from;
+    mat->ref_cnt = 0;
+
+
+    double *newCols = malloc(sizeof(double * cols));
+    
+    if (newCols == NULL) {
+        return -1;
+    }
+    
+    double **newData = malloc(sizeof(newCols * rows));
+    
+    if (newData == NULL) {
+        return -1;
+    }
+
+    double **parentData = from->data;
+    int i, j;
+
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < cols; j++) {
+            newData[i][j] = parentData[row_offset + i][col_offset + j];
+        }
+    }
+
+    return 0;
     /* TODO: YOUR CODE HERE */
 }
 
@@ -82,6 +149,16 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
  */
 void deallocate_matrix(matrix *mat) {
     /* TODO: YOUR CODE HERE */
+
+
+    if (mat->ref_cnt == 0) {
+        int i;
+        double **data = mat->data;
+        for (i = 0; i < mat->rows; i++) {
+            free(data[i]);
+        }
+        free(data);
+    }
 }
 
 /*
@@ -203,6 +280,47 @@ int sub_matrix(matrix *result, matrix *mat1, matrix *mat2) {
  */
 int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     /* TODO: YOUR CODE HERE */
+    int matrix1Rows = mat1->rows;
+    int matrix1Cols = mat1->cols;
+
+    int matrix2Rows = mat2->rows;
+    int matrix2Cols = mat2->cols;
+
+    int matrixResRows = result->rows;
+    int matrixResCols = result->cols;
+
+    int **mat1Data = mat1->data;
+    int **mat2Data = mat2->data;
+    int **resData = result->data;
+    int i, j, w;
+    double sum;
+
+
+    if (matrix1Cols != matrix2Rows || matrixResCols != matrix2Cols 
+        || matrixResRows != matrix1Rows) {
+        return -1;
+    }
+
+    for (i = 0; i < matrix1Rows; i++) {
+        //double *currentRow = *(mat1Data+i);
+        
+        for (j = 0, sum = 0; j < matrix2Rows; j++) {
+            //double *currentCol = *(mat2Data+j);
+            //double entryCol = *(currentCol+i);
+            for (w = 0; w < matrix1Cols; w++) {
+                
+                //double entryRow = *(currentRow+w);
+                //if (w == j) {
+                  //  sum += entryRow * entryCol;
+
+                //}
+                sum += mat1Data[i][w] * mat2Data[w][j];
+            }
+            resData[i][j] = sum;
+        }
+    }
+    return 0;
+
 }
 
 /*
@@ -210,8 +328,24 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
  * Return 0 upon success and a nonzero value upon failure.
  * Remember that pow is defined with matrix multiplication, not element-wise multiplication.
  */
+//0th power is I
 int pow_matrix(matrix *result, matrix *mat, int pow) {
     /* TODO: YOUR CODE HERE */
+    if (pow <= 0 || result->rows != mat->rows 
+        || result->cols != mat->cols || mat->rows != mat->cols) {
+        return -1;
+    }
+
+    int first = pow;
+    while (pow > 0) {
+        if (pow == first) {
+            mul_matrix(result, mat, mat);
+        } else {
+            mul_matrix(result, result, mat);
+        }
+        pow--; 
+    }
+    return 0;
 }
 
 /*
@@ -224,8 +358,8 @@ int neg_matrix(matrix *result, matrix *mat) {
     int originalCol = mat->cols;
     int newRow = result->rows;
     int newCol = result->cols;
-    int **dataOriginal = mat->data;
-    int **dataNew = result->data;
+    double **dataOriginal = mat->data;
+    double **dataNew = result->data;
     int i, j;
 
     if (!(originalRow == newRow && originalCol == newCol)) {
