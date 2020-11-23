@@ -63,26 +63,33 @@ int allocate_matrix(matrix **mat, int rows, int cols) {
         return -1;
     }
 
-    *mat = malloc(sizeof(matrix));
+    *mat = (matrix *) malloc(sizeof(matrix));
     
     if (mat == NULL) {
         return -1;
     }
 
-    mat->rows = rows;
-    mat->cols = cols;
-    mat->is_1d = 0; //maybe fix
-    mat->parent = NULL;
-    mat->ref_cnt = 0; //maybe fix
+    (*mat)->rows = rows;
+    (*mat)->cols = cols;
+    (*mat)->is_1d = 0; //maybe fix
+    (*mat)->parent = NULL;
+    (*mat)->ref_cnt = 1; //maybe fix
 
-    double *newCols = calloc(sizeof(double * cols));
-    double **newData = calloc(sizeof(newCols * rows));
+    int i;
+    double **outer = (double **)calloc(rows, sizeof(double*));
+    for (i = 0; i < rows; i++) {
+    	double *inner = (double *)calloc(cols, sizeof(double));
+	outer[i] = inner;
+    }
+    
+    //double *newCols = (double *) calloc(cols, sizeof(double));
+    //double **newData = (double **) calloc(rows, sizeof(newCols));
 
-    if (newData == NULL) {
+    if (outer == NULL) {
         return -1;
     }
 
-    mat->newData;
+    (*mat)->data = outer;
 
     return 0;
 
@@ -102,28 +109,36 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
         return -1;
     }
     
-    mat = malloc(sizeof(matrix));
+    *mat = (matrix *) malloc(sizeof(matrix));
     
     if (mat == NULL) {
         return -1;
     }
     
-    mat->rows = rows;
-    mat->cols = cols;
-    mat->is_1d = 0;
-    mat->parent = from;
-    mat->ref_cnt = 0;
+    (*mat)->rows = rows;
+    (*mat)->cols = cols;
+    (*mat)->is_1d = 0;
+    (*mat)->parent = from;
+    (*mat)->ref_cnt = 1; //increment that of parent
 
 
-    double *newCols = malloc(sizeof(double * cols));
+    //double *newCols = (double *) malloc(sizeof(double) * cols);
     
-    if (newCols == NULL) {
-        return -1;
+   // if (newCols == NULL) {
+     //   return -1;
+   // }
+    
+   // double **newData = (double **) malloc(sizeof(newCols) * rows);
+    
+	
+    int w;
+    double **outer = (double**)malloc(sizeof(double*)*rows);
+    for (w = 0; w < rows; w++) {
+	    double* inner = (double*)malloc(sizeof(double)*cols);
+	    outer[w] = inner;
     }
-    
-    double **newData = malloc(sizeof(newCols * rows));
-    
-    if (newData == NULL) {
+
+    if (outer == NULL) {
         return -1;
     }
 
@@ -132,10 +147,12 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
 
     for (i = 0; i < rows; i++) {
         for (j = 0; j < cols; j++) {
-            newData[i][j] = parentData[row_offset + i][col_offset + j];
+	    //consider edge case when offset +rows > from->rows
+            outer[i][j] = parentData[row_offset + i][col_offset + j];
         }
     }
 
+    (*mat)->data = outer;
     return 0;
     /* TODO: YOUR CODE HERE */
 }
@@ -180,6 +197,8 @@ double get(matrix *mat, int row, int col) {
 void set(matrix *mat, int row, int col, double val) {
     /* TODO: YOUR CODE HERE */
     double **data = mat->data; 
+    //double *rows = *(data+row);
+    //*(rows+col) = val;
     double *column = *(data+col); //fine if zero indexed cols, but need to subtract 1 if not
     *(column+row) = val;
     //column[row] = val;
@@ -289,9 +308,9 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     int matrixResRows = result->rows;
     int matrixResCols = result->cols;
 
-    int **mat1Data = mat1->data;
-    int **mat2Data = mat2->data;
-    int **resData = result->data;
+    double **mat1Data = mat1->data;
+    double **mat2Data = mat2->data;
+    double **resData = result->data;
     int i, j, w;
     double sum;
 
@@ -304,8 +323,9 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     for (i = 0; i < matrix1Rows; i++) {
         //double *currentRow = *(mat1Data+i);
         
-        for (j = 0, sum = 0; j < matrix2Rows; j++) {
-            //double *currentCol = *(mat2Data+j);
+        for (j = 0; j < matrix2Rows; j++) {
+            sum = 0;
+	    	//double *currentCol = *(mat2Data+j);
             //double entryCol = *(currentCol+i);
             for (w = 0; w < matrix1Cols; w++) {
                 
@@ -314,9 +334,9 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
                   //  sum += entryRow * entryCol;
 
                 //}
-                sum += mat1Data[i][w] * mat2Data[w][j];
+                sum += mat1Data[w][i] * mat2Data[j][w];
             }
-            resData[i][j] = sum;
+            resData[j][i] = sum;
         }
     }
     return 0;
@@ -337,11 +357,14 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     }
 
     int first = pow;
-    while (pow > 0) {
+    while (pow - 1 > 0) {
         if (pow == first) {
             mul_matrix(result, mat, mat);
         } else {
-            mul_matrix(result, result, mat);
+	    matrix *copy = NULL;
+	    allocate_matrix_ref(&copy, result, 0, 0, result->rows, result->cols);
+            mul_matrix(result, copy, mat);
+	    deallocate_matrix(copy);
         }
         pow--; 
     }
