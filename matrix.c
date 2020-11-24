@@ -184,10 +184,7 @@ void deallocate_matrix(matrix *mat) {
  */
 double get(matrix *mat, int row, int col) {
     /* TODO: YOUR CODE HERE */
-    double **data = mat->data;
-    double *column = *(data+col); //fine if zero indexed cols, but need to subtract 1 if not
-    double index = *(column+row); //fine if zero indexed rows, but need to subtract 1 if not
-    return index;
+    return mat->data[row][cols];
 }
 
 /*
@@ -196,11 +193,7 @@ double get(matrix *mat, int row, int col) {
  */
 void set(matrix *mat, int row, int col, double val) {
     /* TODO: YOUR CODE HERE */
-    double **data = mat->data; 
-    //double *rows = *(data+row);
-    //*(rows+col) = val;
-    double *column = *(data+col); //fine if zero indexed cols, but need to subtract 1 if not
-    *(column+row) = val;
+    mat->data[row][col] = val
     //column[row] = val;
 }
 
@@ -213,10 +206,9 @@ void fill_matrix(matrix *mat, double val) {
     int row = mat->rows;
     double **data = mat->data;
     int i, j;
-    for (i=0; i < col; i++) {
-    	double *colIndex = *(data+i);
-    	for (j=0; j< row; j++) {
-    		*(colIndex+j) = val;
+    for (i=0; i < row; i++) {
+    	for (j=0; j < col; j++) {
+    		data[i][j] = val;
     	}
     }
 }
@@ -243,13 +235,10 @@ int add_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     	return -1;
     }
 
-    for (i = 0; i < colMatRes; i++) {
-    	double *colIndexMat1 = *(data1+i);
-    	double *colIndexMat2 = *(data2+i);
-    	double *colIndexMatRes = *(data3+i);
+    for (i = 0; i < rowMatRes; i++) {
 
-    	for (j = 0; j < rowMatRes; j++) {
-    		*(colIndexMatRes+j) = *(colIndexMat1+j) + *(colIndexMat2+j);  
+    	for (j = 0; j < colMatRes; j++) {
+    		data3[i][j] = data1[i][j] + data2[i][j];
     	}
     }
 
@@ -279,13 +268,9 @@ int sub_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     	return -1;
     }
 
-    for (i = 0; i < colMatRes; i++) {
-    	double *colIndexMat1 = *(data1+i);
-    	double *colIndexMat2 = *(data2+i);
-    	double *colIndexMatRes = *(data3+i);
-
-    	for (j = 0; j < rowMatRes; j++) {
-    		*(colIndexMatRes+j) = *(colIndexMat1+j) - *(colIndexMat2+j);  
+    for (i = 0; i < rowMatRes; i++) {
+    	for (j = 0; j < colMatRes; j++) {
+    		data3[i][j] = data1[i][j] - data2[i][j];
     	}
     }
     
@@ -389,12 +374,9 @@ int neg_matrix(matrix *result, matrix *mat) {
     	return -1;
     }
 
-    for (i = 0; i < newCol; i++) {
-    	double *colIndexOriginal = *(dataOriginal+i);
-    	double *colIndexNew = *(dataNew+i); 
-    	for (j = 0; j < newRow; j++) {
-    		double beforeNeg = *(colIndexOriginal+j);
-    		*(colIndexNew+j) = -beforeNeg;
+    for (i = 0; i < newRow; i++) {
+    	for (j = 0; j < newCol; j++) {
+    		dataNew[i][j] = -dataOriginal[i][j];
     	}
     }
 
@@ -419,15 +401,13 @@ int abs_matrix(matrix *result, matrix *mat) {
     	return -1;
     }
 
-    for (i = 0; i < newCol; i++) {
-    	double *colIndexOriginal = *(dataOriginal+i);
-    	double *colIndexNew = *(dataNew+i); 
-    	for (j = 0; j < newRow; j++) {
-    		double beforeAbs = *(colIndexOriginal+j);
+    for (i = 0; i < newRow; i++) {
+    	for (j = 0; j < newCol; j++) {
+    		double beforeAbs = dataOriginal[i][j];
     		if (beforeAbs >= 0) {
-    			*(colIndexNew+j) = beforeAbs;
+    			dataNew[i][j] = beforeAbs
     		} else {
-    			*(colIndexNew+j) = -beforeAbs;
+    			dataNew[i][j] = -beforeAbs;
     		}
     	}
     }
