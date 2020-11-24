@@ -172,7 +172,9 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
  */
 void deallocate_matrix(matrix *mat) {
     /* TODO: YOUR CODE HERE */
-
+	if (mat == NULL) {
+		return;
+	}
 
     if (mat->ref_cnt == 0) {
         int i;
@@ -312,19 +314,10 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     }
 
     for (i = 0; i < matrix1Rows; i++) {
-        //double *currentRow = *(mat1Data+i);
-        
+
         for (j = 0; j < matrix2Rows; j++) {
             sum = 0;
-	    	//double *currentCol = *(mat2Data+j);
-            //double entryCol = *(currentCol+i);
             for (w = 0; w < matrix1Cols; w++) {
-                
-                //double entryRow = *(currentRow+w);
-                //if (w == j) {
-                  //  sum += entryRow * entryCol;
-
-                //}
                 sum += mat1Data[w][i] * mat2Data[j][w];
             }
             resData[j][i] = sum;
