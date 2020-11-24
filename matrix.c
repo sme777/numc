@@ -117,9 +117,15 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
     
     (*mat)->rows = rows;
     (*mat)->cols = cols;
-    (*mat)->is_1d = 0;
+    if (rows == 1 || cols == 1) {
+	    (*mat)->is_1d = 1;
+    } else {
+	    (*mat)->is_1d = 0;
+    }
+    //(*mat)->is_1d = 0;
     (*mat)->parent = from;
-    (*mat)->ref_cnt = 1; //increment that of parent
+    (*mat)->ref_cnt = 1;
+    from->ref_cnt += 1; //increment that of parent
 
 
     //double *newCols = (double *) malloc(sizeof(double) * cols);
@@ -184,7 +190,7 @@ void deallocate_matrix(matrix *mat) {
  */
 double get(matrix *mat, int row, int col) {
     /* TODO: YOUR CODE HERE */
-    return mat->data[row][cols];
+    return mat->data[row][col];
 }
 
 /*
@@ -193,7 +199,7 @@ double get(matrix *mat, int row, int col) {
  */
 void set(matrix *mat, int row, int col, double val) {
     /* TODO: YOUR CODE HERE */
-    mat->data[row][col] = val
+    mat->data[row][col] = val;
     //column[row] = val;
 }
 
@@ -405,7 +411,7 @@ int abs_matrix(matrix *result, matrix *mat) {
     	for (j = 0; j < newCol; j++) {
     		double beforeAbs = dataOriginal[i][j];
     		if (beforeAbs >= 0) {
-    			dataNew[i][j] = beforeAbs
+    			dataNew[i][j] = beforeAbs;
     		} else {
     			dataNew[i][j] = -beforeAbs;
     		}
