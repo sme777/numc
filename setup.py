@@ -8,7 +8,7 @@ def main():
 	# You may find this reference helpful: https://docs.python.org/3.6/extending/building.html
 	# TODO: YOUR CODE HERE
 	module1 = Extension('numc',
-						sources = ['numc.c'],
+						sources = ['numc.c', 'matrix.c'],
 						extra_compile_args = CFLAGS,
 						extra_link_args = LDFLAGS)
 
