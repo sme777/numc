@@ -59,13 +59,18 @@ void rand_matrix(matrix *result, unsigned int seed, double low, double high) {
  */
 int allocate_matrix(matrix **mat, int rows, int cols) {
     /* TODO: YOUR CODE HERE */
+    
+    // add Runtime Error
+
     if (rows <= 0 || cols <= 0) {
+        //throw ValueError
         return -1;
     }
 
     *mat = (matrix *) malloc(sizeof(matrix));
     
     if (mat == NULL) {
+        //throw TypeError?
         return -1;
     }
 

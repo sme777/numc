@@ -287,6 +287,26 @@ PyObject *Matrix61c_repr(PyObject *self) {
  */
 PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
+
+    int isMatrixType = PyObject_TypeCheck(args, Matrix61c);
+    if (isMatrixType) {
+        Matrix61c* other = (Matrix61c) args;
+        matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+        int allocateSuccess = allocate_matrix(newMat, self->rows, self->cols);
+        if (allocateSuccess == 0) {
+            Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+        
+            rv->mat = *newMat;
+            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+            if (other->mat->rows != self->mat->rows || other->mat->cols != self->mat->cols) {
+                //throw ValueError
+            }
+            add_matrix(rv->mat, self->mat, other->mat);
+            return rv;
+        }
+    } else {
+        //throw TypeError
+    }
 }
 
 /*
@@ -295,6 +315,25 @@ PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
  */
 PyObject *Matrix61c_sub(Matrix61c* self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
+    int isMatrixType = PyObject_TypeCheck(args, Matrix61c);
+    if (isMatrixType) {
+        Matrix61c* other = (Matrix61c) args;
+        matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+        int allocateSuccess = allocate_matrix(newMat, self->rows, self->cols);
+        if (allocateSuccess == 0) {
+            Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+        
+            rv->mat = *newMat;
+            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+            if (other->mat->rows != self->mat->rows || other->mat->cols != self->mat->cols) {
+                //throw ValueError
+            }
+            sub_matrix(rv->mat, self->mat, other->mat);
+            return rv;
+        }
+    } else {
+        //throw TypeError
+    }
 }
 
 /*
@@ -303,6 +342,25 @@ PyObject *Matrix61c_sub(Matrix61c* self, PyObject* args) {
  */
 PyObject *Matrix61c_multiply(Matrix61c* self, PyObject *args) {
     /* TODO: YOUR CODE HERE */
+    int isMatrixType = PyObject_TypeCheck(args, Matrix61c);
+    if (isMatrixType) {
+        Matrix61c* other = (Matrix61c) args;
+        matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+        int allocateSuccess = allocate_matrix(newMat, self->rows, self->cols);
+        if (allocateSuccess == 0) {
+            Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+        
+            rv->mat = *newMat;
+            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+            if (self->mat->cols != other->mat->rows) {
+                //throw ValueError
+            }
+            mul_matrix(rv->mat, self->mat, other->mat);
+            return rv;
+        }
+    } else {
+        //throw TypeError
+    }
 }
 
 /*
@@ -310,6 +368,21 @@ PyObject *Matrix61c_multiply(Matrix61c* self, PyObject *args) {
  */
 PyObject *Matrix61c_neg(Matrix61c* self) {
     /* TODO: YOUR CODE HERE */
+    matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+    int allocateSuccess = allocate_matrix(newMat, self->rows, self->cols);
+    if (allocateSuccess == 0) {
+        Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+        
+        rv->mat = *newMat;
+        rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+        int success = neg_matrix(rv->mat, self->mat);
+        
+        if (success == 0) return rv;
+        return NULL;
+    } else {
+        return NULL:
+    }
+
 }
 
 /*
@@ -317,6 +390,21 @@ PyObject *Matrix61c_neg(Matrix61c* self) {
  */
 PyObject *Matrix61c_abs(Matrix61c *self) {
     /* TODO: YOUR CODE HERE */
+
+    matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+    int allocateSuccess = allocate_matrix(newMat, self->rows, self->cols);
+    if (allocateSuccess == 0) {
+        Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+        
+        rv->mat = *newMat;
+        rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+        int success = abs_matrix(rv->mat, self->mat);
+        
+        if (success == 0) return rv;
+        return NULL;
+    } else {
+        return NULL;
+    }
 }
 
 /*
@@ -324,6 +412,25 @@ PyObject *Matrix61c_abs(Matrix61c *self) {
  */
 PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
     /* TODO: YOUR CODE HERE */
+    int isLong = PyLong_Check(pow);
+    if (isLong) {
+        long toPow = PyLong_AsLong(pow);
+        matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+        int allocateSuccess = allocate_matrix(newMat, self->rows, self->cols);
+        if (allocateSuccess == 0) {
+            Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+        
+            rv->mat = *newMat;
+            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+            if (pow < 0 || self->mat->rows != self->mat->cols) {
+                //throw ValueError
+            }
+            pow_matrix(rv->mat, self->mat, (int)toPow);
+            return rv;
+        } 
+    } else {
+        //throw TypeError
+    }
 }
 
 /*
@@ -332,6 +439,9 @@ PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
  */
 PyNumberMethods Matrix61c_as_number = {
     /* TODO: YOUR CODE HERE */
+    .nb_add = Matrix61c_add,
+    .nb_subtract = Matrix61c_sub
+
 };
 
 
