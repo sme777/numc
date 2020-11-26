@@ -76,9 +76,15 @@ int allocate_matrix(matrix **mat, int rows, int cols) {
 
     (*mat)->rows = rows;
     (*mat)->cols = cols;
-    (*mat)->is_1d = 0; //maybe fix
+    //(*mat)->is_1d = 0; //maybe fix
     (*mat)->parent = NULL;
     (*mat)->ref_cnt = 1; //maybe fix
+
+    if (rows == 1 || cols == 1) {
+        (*mat)->is_1d = 1;
+    } else {
+        (*mat)->is_1d = 0;
+    }
 
     int i;
     double **outer = (double **)calloc(rows, sizeof(double*));

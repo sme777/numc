@@ -549,6 +549,58 @@ PyMethodDef Matrix61c_methods[] = {
  */
 PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
     /* TODO: YOUR CODE HERE */
+    if (self->mat->rows == 1 || self->mat->cols == 1) {
+        //1d matrix
+        int length;
+        if (self->mat->rows == 1) {
+            length = self->mat->cols; 
+        } else {
+            length = self->mat->rows;
+        }
+
+        if (PyLong_Check(key)) {
+            int index = (int)PyLong_AsLong(key);
+            if (self->mat->rows == 1) {
+                Matrix61c_get_value(self, 
+                    PyTuple_Pack(2, PyLong_FromLong(1), PyLong_FromLong(index)))
+            } else {
+                Matrix61c_get_value(self, 
+                    PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(1)))
+            }
+            
+        } else if (PySlice_Check(key)) {
+            Py_ssize_t *start = NULL;
+            Py_ssize_t *end = NULL;
+            Py_ssize_t *step = NULL;
+            Py_ssize_t *sliceLength = NULL;
+            //PyArg_UnpackTuple(args, "args", 1, 2, &start, &end);
+            
+            int success = PySlice_GetIndicesEx(key, length, start, end, step, sliceLength);
+            if (success == 0) {
+                matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+                Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+                rv->mat = *newMat;
+                rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+                int allRefSuccess = allocate_matrix_ref(newMat, self->mat, (int) start, (int) end, self->mat->rows, self->mat->cols);
+                if (allRefSuccess != 0) {
+                    //RuntimeError
+                    return NULL;
+                }
+                return (PyObject *)rv;
+            
+            } else {
+                PyErr_SetString(PyExc_TypeError, "PySlice_GetIndicesEx could not parse key!");
+                return NULL;
+            }
+            
+        } else {
+            PyErr_SetString(PyExc_TypeError, "Key is not an integer or a slice for 1D matrix!");
+            return NULL;
+        }
+    } else {
+        //2d matrix
+    }
+
 }
 
 /*
