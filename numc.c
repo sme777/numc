@@ -471,7 +471,7 @@ PyObject *Matrix61c_set_value(Matrix61c *self, PyObject* args) {
                 toVal = (double)PyFloat_AsDouble(val);
             }
 
-            if (toRows >= self->mat->rows || toCols >= self->mat->cols) {
+            if (!(toRows >= self->mat->rows || toCols >= self->mat->cols)) {
                 set(self->mat, toRows, toCols, toVal);
                 Py_RETURN_NONE;
             } else {
@@ -537,8 +537,8 @@ PyObject *Matrix61c_get_value(Matrix61c *self, PyObject* args) {
 PyMethodDef Matrix61c_methods[] = {
     /* TODO: YOUR CODE HERE */
     //{"set", (PyCFunction)(*Matrix61c_set_value), 4, "docstring"},
-    {"get", (PyCFunction)(&Matrix61c_get_value), 3, "docstring"},
-    {"set", (PyCFunction)(&Matrix61c_set_value), 4, "docstring"},
+    {"get", (PyCFunction)(&Matrix61c_get_value), METH_VARARGS, "matrix getter"},
+    {"set", (PyCFunction)(&Matrix61c_set_value), METH_VARARGS, "matrix setter"},
     {NULL, NULL, 0, NULL}
 };
 
