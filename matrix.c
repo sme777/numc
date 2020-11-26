@@ -343,7 +343,7 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 //0th power is I
 int pow_matrix(matrix *result, matrix *mat, int pow) {
     /* TODO: YOUR CODE HERE */
-    if (pow <= 0 || result->rows != mat->rows 
+    if (pow < 0 || result->rows != mat->rows 
         || result->cols != mat->cols || mat->rows != mat->cols) {
         PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
         return -1;

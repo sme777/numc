@@ -410,25 +410,7 @@ PyObject *Matrix61c_abs(Matrix61c *self) {
  */
 PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
     /* TODO: YOUR CODE HERE */
-    // int isLong = PyLong_Check(pow);
-    // if (isLong) {
-    //     long toPow = PyLong_AsLong(pow);
-    //     matrix **newMat = (matrix **) malloc(sizeof(matrix*));
-    //     int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
-    //     if (allocateSuccess == 0) {
-    //         Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-        
-    //         rv->mat = *newMat;
-    //         rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-    //         if (pow < 0 || self->mat->rows != self->mat->cols) {
-    //             //throw ValueError
-    //         }
-    //         pow_matrix(rv->mat, self->mat, (int)toPow);
-    //         return rv;
-    //     } 
-    // } else {
-    //     //throw TypeError
-    // }
+
     if (PyLong_Check(pow)) {
 
         int toPow = (int)PyLong_AsLong(pow);
@@ -473,6 +455,38 @@ PyNumberMethods Matrix61c_as_number = {
  */
 PyObject *Matrix61c_set_value(Matrix61c *self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
+    if (PyTuple_Size(args) == 3) {
+        PyObject *rows = NULL;
+        PyObject *cols = NULL;
+        PyObject *val = NULL;
+        PyArg_UnpackTuple(args, "args", 1, 3, &rows, &cols, &val)
+        if (rows && cols && val && PyLong_Check(rows) && PyLong_Check(cols) && (PyLong_Check(val)
+                || PyFloat_Check(val))) {
+            int toRows = (int)PyLong_AsLong(rows);
+            int toCols = (int)PyLong_AsLong(cols);
+            if (PyLong_Check(val)) {
+                double toVal = (double)PyLong_AsDouble(val);
+            } else {
+                double toVal = (double)PyFloat_AsDouble(val);
+            }
+
+            if (toRows >= self->mat->rows || toCols >= self->mat->cols) {
+                set(self->mat, toRows, toCols, toVal);
+                Py_RETURN_NONE();
+            } else {
+                PyErr_SetString(PyExc_IndexError, "Specified row or column is out of range!");
+                Py_RETURN_NONE();    
+            }
+
+        } else {
+            PyErr_SetString(PyExc_TypeError, "Wrong types for arguments!");
+            Py_RETURN_NONE();
+        }
+        
+    } else {
+        PyErr_SetString(PyExc_TypeError, "Wrong number of arguments!");
+        Py_RETURN_NONE();
+    }
 }
 
 /*
@@ -482,6 +496,35 @@ PyObject *Matrix61c_set_value(Matrix61c *self, PyObject* args) {
  */
 PyObject *Matrix61c_get_value(Matrix61c *self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
+    if (PyTuple_Size(args) == 2) {
+        PyObject *rows = NULL;
+        PyObject *cols = NULL;
+        PyArg_UnpackTuple(args, "args", 1, 2, &rows, &cols)
+        if (rows && cols && PyLong_Check(rows) && PyLong_Check(cols)) {
+            int toRows = (int)PyLong_AsLong(rows);
+            int toCols = (int)PyLong_AsLong(cols);
+
+            if (toRows >= self->mat->rows || toCols >= self->mat->cols) {
+
+                double val = get(self->mat, toRows, toCols);
+
+                PyObject *result = PyLong-FromDouble(val);
+                return result;
+                
+            } else {
+                PyErr_SetString(PyExc_IndexError, "Specified row or column is out of range!");
+                return NULL;
+            }
+
+        } else {
+            PyErr_SetString(PyExc_TypeError, "Wrong types for arguments!");
+            return NULL;
+        }
+        
+    } else {
+        PyErr_SetString(PyExc_TypeError, "Wrong number of arguments!");
+        return NULL;
+    }
 }
 
 /*
@@ -492,6 +535,7 @@ PyObject *Matrix61c_get_value(Matrix61c *self, PyObject* args) {
  */
 PyMethodDef Matrix61c_methods[] = {
     /* TODO: YOUR CODE HERE */
+    {"get", (PyCFunction)Matrix61c_set_value, 4, "docstring"},
     {NULL, NULL, 0, NULL}
 };
 
