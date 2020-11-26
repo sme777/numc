@@ -287,26 +287,32 @@ PyObject *Matrix61c_repr(PyObject *self) {
  */
 PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
+    if (PyArg_UnpackTuple(args, "args", 1, 1, &mat)) {
+        if (PyObject_TypeCheck(mat, &Matrix61cType)) {
 
-    int isMatrixType = PyObject_TypeCheck(&args, Matrix61c);
-    if (isMatrixType) {
-        Matrix61c* other = (Matrix61c *) args;
-        matrix **newMat = (matrix **) malloc(sizeof(matrix*));
-        int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
-        if (allocateSuccess == 0) {
-            Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+            Matrix61c* other = (Matrix61c *) args;
+            matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+            int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
+            if (allocateSuccess == 0) {
+                Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
         
-            rv->mat = *newMat;
-            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-            if (other->mat->rows != self->mat->rows || other->mat->cols != self->mat->cols) {
+                rv->mat = *newMat;
+                rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+                if (other->mat->rows != self->mat->rows || other->mat->cols != self->mat->cols) {
                 //throw ValueError
+                }
+                add_matrix(rv->mat, self->mat, other->mat);
+                return rv;
             }
-            add_matrix(rv->mat, self->mat, other->mat);
-            return rv;
+        } else {
+             PyErr_SetString(PyExc_TypeError, "Argument must of type numc.Matrix!");
+             return NULL;
         }
     } else {
-        //throw TypeError
+        PyErr_SetString(PyExc_TypeError, "Invalid arguments");
+        return NULL;
     }
+    //int isMatrixType = PyObject_TypeCheck(&args, Matrix61c);
 }
 
 /*
