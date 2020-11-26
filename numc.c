@@ -431,7 +431,7 @@ PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
     // }
     if (PyLong_Check(pow)) {
 
-        int toPow = (int) *pow;
+        int toPow = (int)PyLong_AsLong(pow);
         matrix **newMat = (matrix **) malloc(sizeof(matrix*));
         int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
         if (allocateSuccess == 0) {
