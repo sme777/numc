@@ -288,10 +288,10 @@ PyObject *Matrix61c_repr(PyObject *self) {
 PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
     PyObject *mat = NULL;  
- 	if (PyArg_UnpackTuple(args, "args", 1, 1, &mat)) {
-        if (PyObject_TypeCheck(mat, &Matrix61cType)) {
+ 	//if (PyArg_UnpackTuple(args, "args", 1, 1, &mat)) {
+        if (PyObject_TypeCheck(args, &Matrix61cType)) {
 
-            Matrix61c* other = (Matrix61c *) mat;
+            Matrix61c* other = (Matrix61c *) args;
             matrix **newMat = (matrix **) malloc(sizeof(matrix*));
             int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
             if (allocateSuccess == 0) {
@@ -303,16 +303,15 @@ PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
                 //throw ValueError
                 }
                 add_matrix(rv->mat, self->mat, other->mat);
-                return rv;
-            }
+                return (PyObject *)rv;
+            } else {
+	    	return NULL;
+	    }
         } else {
              PyErr_SetString(PyExc_TypeError, "Argument must of type numc.Matrix!");
              return NULL;
         }
-    } else {
-        PyErr_SetString(PyExc_TypeError, "Invalid arguments");
-        return NULL;
-    }
+    
     //int isMatrixType = PyObject_TypeCheck(&args, Matrix61c);
 }
 
@@ -442,11 +441,11 @@ PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
 
 /*
  * Create a PyNumberMethods struct for overloading operators with all the number methods you have
- * define. You might find this link helpful: https://docs.python.org/3.6/c-api/typeobj.html
+ * define. Ybinaryfuncou might find this link helpful: https://docs.python.org/3.6/c-api/typeobj.html
  */
 PyNumberMethods Matrix61c_as_number = {
     /* TODO: YOUR CODE HERE */
-    .nb_add = Matrix61c_add,
+    .nb_add =(binaryfunc) Matrix61c_add,
     .nb_subtract = Matrix61c_sub
 
 };
