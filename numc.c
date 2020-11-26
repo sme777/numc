@@ -561,11 +561,12 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
         if (PyLong_Check(key)) {
             int index = (int)PyLong_AsLong(key);
             if (self->mat->rows == 1) {
+		printf("%d --- %d", 1, index);
                 Matrix61c_get_value(self, 
-                    PyTuple_Pack(2, PyLong_FromLong(1), PyLong_FromLong(index)))
+                    PyTuple_Pack(2, PyLong_FromLong(0), PyLong_FromLong(index)));
             } else {
                 Matrix61c_get_value(self, 
-                    PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(1)))
+                    PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(0)));
             }
             
         } else if (PySlice_Check(key)) {
