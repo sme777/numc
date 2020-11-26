@@ -287,10 +287,11 @@ PyObject *Matrix61c_repr(PyObject *self) {
  */
 PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
     /* TODO: YOUR CODE HERE */
-    if (PyArg_UnpackTuple(args, "args", 1, 1, &mat)) {
+    PyObject *mat = NULL;  
+ 	if (PyArg_UnpackTuple(args, "args", 1, 1, &mat)) {
         if (PyObject_TypeCheck(mat, &Matrix61cType)) {
 
-            Matrix61c* other = (Matrix61c *) args;
+            Matrix61c* other = (Matrix61c *) mat;
             matrix **newMat = (matrix **) malloc(sizeof(matrix*));
             int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
             if (allocateSuccess == 0) {
