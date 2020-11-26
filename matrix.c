@@ -245,7 +245,8 @@ int add_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
     if (!(rowMat1 == rowMat2 && colMat1 == colMat2 
     	&& rowMat1 == rowMatRes && colMat1 == colMatRes)) {
-    	return -1;
+    	PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
+        return -1;
     }
 
     for (i = 0; i < rowMatRes; i++) {
@@ -278,6 +279,7 @@ int sub_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
     if (!(rowMat1 == rowMat2 && colMat1 == colMat2 
     	&& rowMat1 == rowMatRes && colMat1 == colMatRes)) {
+        PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
     	return -1;
     }
 
@@ -315,6 +317,7 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
     if (matrix1Cols != matrix2Rows || matrixResCols != matrix2Cols 
         || matrixResRows != matrix1Rows) {
+        PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
         return -1;
     }
 
@@ -342,6 +345,7 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     /* TODO: YOUR CODE HERE */
     if (pow <= 0 || result->rows != mat->rows 
         || result->cols != mat->cols || mat->rows != mat->cols) {
+        PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
         return -1;
     }
 
@@ -375,6 +379,7 @@ int neg_matrix(matrix *result, matrix *mat) {
     int i, j;
 
     if (!(originalRow == newRow && originalCol == newCol)) {
+        PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
     	return -1;
     }
 
@@ -402,6 +407,7 @@ int abs_matrix(matrix *result, matrix *mat) {
     double **dataNew = result->data;
 
     if (!(originalRow == newRow && originalCol == newCol)) {
+        PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
     	return -1;
     }
 
