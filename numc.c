@@ -560,23 +560,41 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
 
         if (PyLong_Check(key)) {
             int index = (int)PyLong_AsLong(key);
+            matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+            Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+            rv->mat = *newMat;
+            int allRefSuccessSingle;
+
             if (self->mat->rows == 1) {
-		printf("%d --- %d", 1, index);
-                Matrix61c_get_value(self, 
-                    PyTuple_Pack(2, PyLong_FromLong(0), PyLong_FromLong(index)));
+                    allRefSuccessSingle = allocate_matrix_ref(newMat, self->mat, 0, index, self->mat->rows, index+1);  
             } else {
-                Matrix61c_get_value(self, 
-                    PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(0)));
+                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, index, 0, index+1, self->mat->cols);
             }
+            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+            if (allRefSuccess != 0) {
+                    //RuntimeError
+                return NULL;
+            }
+            return (PyObject *)rv;
+  //           if (self->mat->rows == 1) {
+		// printf("%d --- %d", 1, index);
+
+
+  //               Matrix61c_get_value(self, 
+  //                   PyTuple_Pack(2, PyLong_FromLong(0), PyLong_FromLong(index)));
+  //           } else {
+  //               Matrix61c_get_value(self, 
+  //                   PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(0)));
+  //           }
             
         } else if (PySlice_Check(key)) {
-	printf("hello from the other side");
+	//printf("hello from the other side");
             Py_ssize_t *start = NULL;
             Py_ssize_t *end = NULL;
             Py_ssize_t *step = NULL;
             Py_ssize_t *sliceLength = NULL;
             //PyArg_UnpackTuple(args, "args", 1, 2, &start, &end);
-            printf("hello world");
+            //printf("hello world");
             int success = PySlice_GetIndicesEx(key, length, start, end, step, sliceLength);
             if (success == 0) {
                 matrix **newMat = (matrix **) malloc(sizeof(matrix*));
@@ -588,7 +606,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                 //if row==1 then row_offset = 0
                 //if col==1 then row_offset = 0
                 int allRefSuccess;
-		printf("no errors till here");
+		//printf("no errors till here");
                 if (self->mat->rows == 1) {
                     allRefSuccess = allocate_matrix_ref(newMat, self->mat, 0, (int) start, self->mat->rows, self->mat->cols -(int) end);  
                 } else {
