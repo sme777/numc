@@ -621,6 +621,33 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             return (PyObject *)rv2;
 
         } else if (PySlice_Check(key)) {
+            Py_ssize_t start2Dslice = 0;
+            Py_ssize_t end2Dslice = 0;
+            Py_ssize_t step2Dslice = 0;
+            Py_ssize_t sliceLength2Dslice = 0;
+            int success2Dslice = PySlice_GetIndicesEx(key, length, &start2Dslice, &end2Dslice, &step2Dslice, &sliceLength2Dslice);
+            if (success2Dslice == 0) {
+
+                matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
+                Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+                
+                int allRefSuccess2D;
+                
+                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start, 0, end, self->mat->cols); //0, start, 1, end);  
+
+                if (allRefSuccess2D != 0) {
+                    //RuntimeError
+                    return NULL;
+                }
+                rv->mat = *newMat2D;
+                rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+
+                return (PyObject *)rv;
+            } else {
+
+                PyErr_SetString(PyExc_TypeError, "PySlice_GetIndicesEx could not parse key!");
+                return NULL;
+            }
 
         } else if (PyTuple_Check(key)) {
 
