@@ -126,9 +126,9 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
         return -1;
     }
     
-    (*mat)->rows = rows;
-    (*mat)->cols = cols;
-    if (rows == 1 || cols == 1) {
+    (*mat)->rows = rows - row_offset;
+    (*mat)->cols = cols - col_offset;
+    if (rows- row_offset == 1 || cols- col_offset == 1) {
 	    (*mat)->is_1d = 1;
     } else {
 	    (*mat)->is_1d = 0;
@@ -150,7 +150,7 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
 	
     int w;
     double **outer = (double**)malloc(sizeof(double*)*rows);
-    for (w = 0; w < rows; w++) {
+    for (w = 0; w < rows - row_offset; w++) {
 	    double* inner = (double*)malloc(sizeof(double)*cols);
 	    outer[w] = inner;
     }
@@ -162,8 +162,8 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
     double **parentData = from->data;
     int i, j;
 
-    for (i = 0; i < rows; i++) {
-        for (j = 0; j < cols; j++) {
+    for (i = 0; i < rows - row_offset; i++) {
+        for (j = 0; j < cols - col_offset; j++) {
 	    //consider edge case when offset +rows > from->rows
             outer[i][j] = parentData[row_offset + i][col_offset + j];
         }

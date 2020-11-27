@@ -579,9 +579,9 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                 
                 int allRefSuccess;
                 if (self->mat->rows == 1) {
-                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, 0, start, 1, end - start);  
+                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, 0, start, 1, end);  
                 } else {
-                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, start, 0, end - start, 1);
+                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, start, 0, end, 1);
                 }
                 if (allRefSuccess != 0) {
                     //RuntimeError
@@ -605,19 +605,19 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
 
         if (PyLong_Check(key)) {
             int selectedRow = (int)PyLong_AsLong(key);
-            if (selectedRow >= self->rows) {
+            if (selectedRow >= self->mat->rows) {
                 //value error
                 return NULL;
             }
             matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
             Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-            integer2DSuccess = allocate_matrix_ref(newMat2D, self->mat, selectedRow, 0, selectedRow + 1, self->cols); 
+            int integer2DSuccess = allocate_matrix_ref(newMat2D, self->mat, selectedRow, 0, selectedRow + 1, self->mat->cols); 
             if (integer2DSuccess != 0) {
                 //runtime error
                 return NULL;
             } 
-            rv2->mat = newMat2D;
-            rv2->shape = get_shape(rv2->mat->rows, rv->mat->cols);
+            rv2->mat = *newMat2D;
+            rv2->shape = get_shape(rv2->mat->rows, rv2->mat->cols);
             return (PyObject *)rv2;
 
         } else if (PySlice_Check(key)) {
