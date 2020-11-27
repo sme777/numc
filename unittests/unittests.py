@@ -126,3 +126,10 @@ class TestShape(TestCase):
     def test_shape(self):
         dp_mat, nc_mat = rand_dp_nc_matrix(2, 2, seed=0)
         self.assertTrue(dp_mat.shape == nc_mat.shape)
+
+
+class TestSlicing(TestCase):
+    def test_set(self):
+        a = nc.Matric([[1, 2, 3]])
+        a[0]
+        a[0:1]
