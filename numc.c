@@ -568,7 +568,8 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             }
             
         } else if (PySlice_Check(key)) {
-            Py_ssize_t start = 0;
+            //int length = self->mat->rows;
+	    Py_ssize_t start = 0;
             Py_ssize_t end = 0;
             Py_ssize_t step = 0;
             Py_ssize_t sliceLength = 0;
@@ -621,7 +622,8 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             return (PyObject *)rv2;
 
         } else if (PySlice_Check(key)) {
-            Py_ssize_t start2Dslice = 0;
+            int length = self->mat->rows;
+	    Py_ssize_t start2Dslice = 0;
             Py_ssize_t end2Dslice = 0;
             Py_ssize_t step2Dslice = 0;
             Py_ssize_t sliceLength2Dslice = 0;
@@ -633,16 +635,15 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                 
                 int allRefSuccess2D;
                 
-                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start, 0, end, self->mat->cols); //0, start, 1, end);  
-
+                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dslice, 0, end2Dslice, self->mat->cols);
                 if (allRefSuccess2D != 0) {
                     //RuntimeError
                     return NULL;
                 }
-                rv->mat = *newMat2D;
-                rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+                rv2->mat = *newMat2D;
+                rv2->shape = get_shape(rv2->mat->rows, rv2->mat->cols);
 
-                return (PyObject *)rv;
+                return (PyObject *)rv2;
             } else {
 
                 PyErr_SetString(PyExc_TypeError, "PySlice_GetIndicesEx could not parse key!");
