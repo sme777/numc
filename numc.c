@@ -557,69 +557,39 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
         } else {
             length = self->mat->rows;
         }
-
         if (PyLong_Check(key)) {
             int index = (int)PyLong_AsLong(key);
-            //matrix **newMat = (matrix **) malloc(sizeof(matrix*));
-            //Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-            //rv->mat = *newMat;
-            //int allRefSuccessSingle;
-	    //rv->shape = get_shape(1, 1);
-            //if (self->mat->rows == 1) {
-            //        allRefSuccessSingle = allocate_matrix_ref(newMat, self->mat, 0, index, 1, index+1);  
-            //} else {
-            //        allRefSuccessSingle = allocate_matrix_ref(newMat, self->mat, index, 0, index+1, 1);
-           // }
-           // rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-           // if (allRefSuccessSingle != 0) {
-                    //RuntimeError
-             //   return NULL;
-           // }
-           // return (PyObject *)rv;
-             if (self->mat->rows == 1) {
-		// printf("%d --- %d", 1, index);
-
-
-                 Matrix61c_get_value(self, 
-                     PyTuple_Pack(2, PyLong_FromLong(0), PyLong_FromLong(index)));
-             } else {
-                 Matrix61c_get_value(self, 
-                     PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(0)));
-             }
+            if (self->mat->rows == 1) {
+                Matrix61c_get_value(self, 
+                    PyTuple_Pack(2, PyLong_FromLong(0), PyLong_FromLong(index)));
+            } else {
+                Matrix61c_get_value(self, 
+                    PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(0)));
+            }
             
         } else if (PySlice_Check(key)) {
-	//printf("hello from the other side");
             Py_ssize_t start = 0;
             Py_ssize_t end = 0;
             Py_ssize_t step = 0;
             Py_ssize_t sliceLength = 0;
-            //PyArg_UnpackTuple(args, "args", 1, 2, &start, &end);
-            //printf("hello world");
             int success = PySlice_GetIndicesEx(key, length, &start, &end, &step, &sliceLength);
             if (success == 0) {
                 matrix **newMat = (matrix **) malloc(sizeof(matrix*));
                 Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-                //rv->mat = *newMat;
-                //probably needs to be after  allocate calls
-                //rv->shape = get_shape(1, 1);
                 
-                //if row==1 then row_offset = 0
-                //if col==1 then row_offset = 0
                 int allRefSuccess;
-		//printf("no errors till here");
                 if (self->mat->rows == 1) {
-                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, 0, start, 1, end-start);  
+                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, 0, start, 1, end - start);  
                 } else {
-                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, start, 0, end-start, 1);
+                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, start, 0, end - start, 1);
                 }
-		printf("%d is the success", allRefSuccess);
-		//printf("%d is the value", rv->mat->data[0][0]);
-                rv->mat = *newMat;
-		rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-              //  if (allRefSuccess != 0) {
+                if (allRefSuccess != 0) {
                     //RuntimeError
-               //     return NULL;
-               // }
+                    return NULL;
+                }
+                rv->mat = *newMat;
+                rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+
                 return (PyObject *)rv;
             
             } else {
@@ -632,7 +602,43 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             return NULL;
         }
     } else {
+
+        if (PyLong_Check(key)) {
+            int selectedRow = (int)PyLong_AsLong(key);
+            if (selectedRow >= self->rows) {
+                //value error
+                return NULL;
+            }
+            matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
+            Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+            integer2DSuccess = allocate_matrix_ref(newMat2D, self->mat, selectedRow, 0, selectedRow + 1, self->cols); 
+            if (integer2DSuccess != 0) {
+                //runtime error
+                return NULL;
+            } 
+            rv2->mat = newMat2D;
+            rv2->shape = get_shape(rv2->mat->rows, rv->mat->cols);
+            return (PyObject *)rv2;
+
+        } else if (PySlice_Check(key)) {
+
+        } else if (PyTuple_Check(key)) {
+
+        } else {
+            PyErr_SetString(PyExc_TypeError, "Key is not an integer, slice or a tuple for 2D matrix!");
+            return NULL;
+        }
         //2d matrix
+
+
+        //cases
+        //if key is a integer, return the row at that index
+        //if key is a single slice, return the rows at the given slice
+        //if key is a tuple of slices, return the rows from slice1 and cols from slice2
+        //if key is (slice, int), return col at int with the sliced values of row
+        //if key is (int, slice), return row at int with the sliced values of col
+        //if key is (int, int), return 
+
     }
 
 }
