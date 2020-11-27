@@ -131,5 +131,5 @@ class TestShape(TestCase):
 class TestSlicing(TestCase):
     def test_set(self):
         a = nc.Matric([[1, 2, 3]])
-        a[0]
+       # a[0]
         a[0:1]
