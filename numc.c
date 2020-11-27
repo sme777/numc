@@ -581,8 +581,18 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                 matrix **newMat = (matrix **) malloc(sizeof(matrix*));
                 Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
                 rv->mat = *newMat;
+                //probably needs to be after  allocate calls
+                
+                
+                //if row==1 then row_offset = 0
+                //if col==1 then row_offset = 0
+                int allRefSuccess;
+                if (self->mat->rows == 1) {
+                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, 0, (int) start, self->mat->rows, self->mat->cols - end);  
+                } else {
+                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, (int) start, 0, self->mat->rows - end, self->mat->cols);
+                }
                 rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-                int allRefSuccess = allocate_matrix_ref(newMat, self->mat, (int) start, (int) end, self->mat->rows, self->mat->cols);
                 if (allRefSuccess != 0) {
                     //RuntimeError
                     return NULL;
