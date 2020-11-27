@@ -560,32 +560,32 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
 
         if (PyLong_Check(key)) {
             int index = (int)PyLong_AsLong(key);
-            matrix **newMat = (matrix **) malloc(sizeof(matrix*));
-            Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-            rv->mat = *newMat;
-            int allRefSuccessSingle;
-
-            if (self->mat->rows == 1) {
-                    allRefSuccessSingle = allocate_matrix_ref(newMat, self->mat, 0, index, self->mat->rows, index+1);  
-            } else {
-                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, index, 0, index+1, self->mat->cols);
-            }
-            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-            if (allRefSuccess != 0) {
+            //matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+            //Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+            //rv->mat = *newMat;
+            //int allRefSuccessSingle;
+	    //rv->shape = get_shape(1, 1);
+            //if (self->mat->rows == 1) {
+            //        allRefSuccessSingle = allocate_matrix_ref(newMat, self->mat, 0, index, 1, index+1);  
+            //} else {
+            //        allRefSuccessSingle = allocate_matrix_ref(newMat, self->mat, index, 0, index+1, 1);
+           // }
+           // rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+           // if (allRefSuccessSingle != 0) {
                     //RuntimeError
-                return NULL;
-            }
-            return (PyObject *)rv;
-  //           if (self->mat->rows == 1) {
+             //   return NULL;
+           // }
+           // return (PyObject *)rv;
+             if (self->mat->rows == 1) {
 		// printf("%d --- %d", 1, index);
 
 
-  //               Matrix61c_get_value(self, 
-  //                   PyTuple_Pack(2, PyLong_FromLong(0), PyLong_FromLong(index)));
-  //           } else {
-  //               Matrix61c_get_value(self, 
-  //                   PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(0)));
-  //           }
+                 Matrix61c_get_value(self, 
+                     PyTuple_Pack(2, PyLong_FromLong(0), PyLong_FromLong(index)));
+             } else {
+                 Matrix61c_get_value(self, 
+                     PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(0)));
+             }
             
         } else if (PySlice_Check(key)) {
 	//printf("hello from the other side");
