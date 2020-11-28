@@ -509,7 +509,7 @@ PyObject *Matrix61c_get_value(Matrix61c *self, PyObject* args) {
 
                 double val = get(self->mat, toRows, toCols);
 
-                PyObject *result = PyLong_FromDouble(val);
+                PyObject *result = PyFloat_FromDouble(val);
                 return result;
                 
             } else {
@@ -560,12 +560,14 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
         if (PyLong_Check(key)) {
             int index = (int)PyLong_AsLong(key);
             if (self->mat->rows == 1) {
-                Matrix61c_get_value(self, 
-                    PyTuple_Pack(2, PyLong_FromLong(0), PyLong_FromLong(index)));
-            } else {
-                Matrix61c_get_value(self, 
-                    PyTuple_Pack(2, PyLong_FromLong(index), PyLong_FromLong(0)));
-            }
+                //Matrix61c_get_value(self, 
+                 //   PyTuple_Pack(2, PyLong_FromLong(0), PyLong_FromLong(self->mat[0][index])));
+            	return PyFloat_FromDouble(self->mat->data[0][index]);
+	    } else {
+              //  Matrix61c_get_value(self, 
+               //     PyTuple_Pack(2, PyLong_FromLong(self->mat[index][0]), PyLong_FromLong(0)));
+            	return PyFloat_FromDouble(self->mat->data[index][0]);
+	    }
             
         } else if (PySlice_Check(key)) {
             //int length = self->mat->rows;
@@ -651,18 +653,19 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             }
 
         } else if (PyTuple_Check(key)) {
-            if (PyTuple_Size(args) == 2) {
+            if (PyTuple_Size(key) == 2) {
                 PyObject *rows = NULL;
                 PyObject *cols = NULL;
                 int length = self->mat->rows;
-                if (PyArg_UnpackTuple(args, "args", 2, 2, &rows, &cols)) {
+                if (PyArg_UnpackTuple(key, "args", 2, 2, &rows, &cols)) {
                     if (PyLong_Check(rows)) {
                         int rowIndex = (int)PyLong_AsLong(rows);
                         if (PyLong_Check(cols)) {
                             
                             int colIndex = (int)PyLong_AsLong(cols);
-                            Matrix61c_get_value(self, 
-                                PyTuple_Pack(2, PyLong_FromLong(rowIndex), PyLong_FromLong(colIndex)))
+                          return PyFloat_FromDouble(self->mat->data[rowIndex][colIndex]);
+			    //  Matrix61c_get_value(self, 
+                          //      PyTuple_Pack(2, PyLong_FromLong(rowIndex), PyLong_FromLong(colIndex)));
 
 
                         } else if (PySlice_Check(cols)) {
@@ -707,7 +710,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                             Py_ssize_t end2Dtuple = 0;
                             Py_ssize_t step2Dtuple = 0;
                             Py_ssize_t sliceLength2Dtuple = 0;
-                            int success2Dtuple = PySlice_GetIndicesEx(cols, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
+                            int success2Dtuple = PySlice_GetIndicesEx(rows, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
            
                             if (success2Dtuple == 0) {
 
