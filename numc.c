@@ -650,6 +650,16 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             int success2Dslice = PySlice_GetIndicesEx(key, length, &start2Dslice, &end2Dslice, &step2Dslice, &sliceLength2Dslice);
             if (success2Dslice == 0) {
 
+
+                //if (end2Dslice-start == 1) {
+                  //  if (self->mat->rows ==1) {
+                    //    return PyFloat_FromDouble(self->mat->data[0][start]);
+                    //} else {
+                      //  return PyFloat_FromDouble(self->mat->data[start][0]);
+                    //}
+        
+                //}
+
                 matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
                 Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
                 
@@ -693,6 +703,9 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                             int success2Dtuple = PySlice_GetIndicesEx(cols, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
            
                             if (success2Dtuple == 0) {
+                                if (end2Dtuple-start2Dtuple == 1) {  
+                                    return PyFloat_FromDouble(self->mat->data[rowIndex][start2Dtuple]);
+                                }
 
                                 matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
                                 Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
@@ -728,7 +741,9 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                             Py_ssize_t sliceLength2Dtuple = 0;
                             int success2Dtuple = PySlice_GetIndicesEx(rows, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
                             if (success2Dtuple == 0) {
-
+                                if (end2Dtuple-start2Dtuple == 1) {  
+                                    return PyFloat_FromDouble(self->mat->data[start2Dtuple][colIndex]);
+                                }
                                 matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
                                 Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
                                 
@@ -766,7 +781,11 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                             Py_ssize_t step2Dtuple2 = 0;
                             Py_ssize_t sliceLength2Dtuple2 = 0;
                             int success2Dtuple2 = PySlice_GetIndicesEx(cols, length, &start2Dtuple2, &end2Dtuple2, &step2Dtuple2, &sliceLength2Dtuple2);
-           
+                            
+                            if (end2Dtuple1-start2Dtuple1 == 1 && end2Dtuple2-start2Dtuple2 == 1) {  
+                                    return PyFloat_FromDouble(self->mat->data[start2Dtuple1][start2Dtuple2]);
+                            }
+
                             if (success2Dtuple1 == 0 && success2Dtuple2 == 0) {
 
                                 matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
