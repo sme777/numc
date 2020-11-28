@@ -459,7 +459,7 @@ PyObject *Matrix61c_set_value(Matrix61c *self, PyObject* args) {
         PyObject *rows = NULL;
         PyObject *cols = NULL;
         PyObject *val = NULL;
-        PyArg_UnpackTuple(args, "args", 1, 3, &rows, &cols, &val);
+        PyArg_UnpackTuple(args, "args", 3, 3, &rows, &cols, &val);
         if (rows && cols && val && PyLong_Check(rows) && PyLong_Check(cols) && (PyLong_Check(val)
                 || PyFloat_Check(val))) {
             int toRows = (int)PyLong_AsLong(rows);
@@ -500,7 +500,7 @@ PyObject *Matrix61c_get_value(Matrix61c *self, PyObject* args) {
     if (PyTuple_Size(args) == 2) {
         PyObject *rows = NULL;
         PyObject *cols = NULL;
-        PyArg_UnpackTuple(args, "args", 1, 2, &rows, &cols);
+        PyArg_UnpackTuple(args, "args", 2, 2, &rows, &cols);
         if (rows && cols && PyLong_Check(rows) && PyLong_Check(cols)) {
             int toRows = (int)PyLong_AsLong(rows);
             int toCols = (int)PyLong_AsLong(cols);
@@ -623,7 +623,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
 
         } else if (PySlice_Check(key)) {
             int length = self->mat->rows;
-	    Py_ssize_t start2Dslice = 0;
+	        Py_ssize_t start2Dslice = 0;
             Py_ssize_t end2Dslice = 0;
             Py_ssize_t step2Dslice = 0;
             Py_ssize_t sliceLength2Dslice = 0;
@@ -651,6 +651,144 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             }
 
         } else if (PyTuple_Check(key)) {
+            if (PyTuple_Size(args) == 2) {
+                PyObject *rows = NULL;
+                PyObject *cols = NULL;
+                int length = self->mat->rows;
+                if (PyArg_UnpackTuple(args, "args", 2, 2, &rows, &cols)) {
+                    if (PyLong_Check(rows)) {
+                        int rowIndex = (int)PyLong_AsLong(rows);
+                        if (PyLong_Check(cols)) {
+                            
+                            int colIndex = (int)PyLong_AsLong(cols);
+                            Matrix61c_get_value(self, 
+                                PyTuple_Pack(2, PyLong_FromLong(rowIndex), PyLong_FromLong(colIndex)))
+
+
+                        } else if (PySlice_Check(cols)) {
+                            Py_ssize_t start2Dtuple = 0;
+                            Py_ssize_t end2Dtuple = 0;
+                            Py_ssize_t step2Dtuple = 0;
+                            Py_ssize_t sliceLength2Dtuple = 0;
+                            int success2Dtuple = PySlice_GetIndicesEx(cols, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
+           
+                            if (success2Dtuple == 0) {
+
+                                matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
+                                Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+                                
+                                int allRefSuccess2D;
+                                
+                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, rowIndex, start2Dtuple, rowIndex+1, end2Dtuple);
+                                if (allRefSuccess2D != 0) {
+                                    //RuntimeError
+                                    return NULL;
+                                }
+                                rv2->mat = *newMat2D;
+                                rv2->shape = get_shape(rv2->mat->rows, rv2->mat->cols);
+
+                                return (PyObject *)rv2;
+                            } else {
+                                PyErr_SetString(PyExc_TypeError, "PySlice_GetIndicesEx could not parse key!");
+                                return NULL;
+                            }
+
+
+
+                        } else {
+                            PyErr_SetString(PyExc_TypeError, "Key is not an integer, slice or a tuple for 2D matrix!");
+                            return NULL;
+                        }
+                    } else if (PyLong_Check(cols)) {
+                        int colIndex = (int)PyLong_AsLong(cols);
+                        if (PySlice_Check(rows)) {
+
+                            Py_ssize_t start2Dtuple = 0;
+                            Py_ssize_t end2Dtuple = 0;
+                            Py_ssize_t step2Dtuple = 0;
+                            Py_ssize_t sliceLength2Dtuple = 0;
+                            int success2Dtuple = PySlice_GetIndicesEx(cols, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
+           
+                            if (success2Dtuple == 0) {
+
+                                matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
+                                Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+                                
+                                int allRefSuccess2D;
+                                
+                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple, colIndex, end2Dtuple, colIndex+1);
+                                if (allRefSuccess2D != 0) {
+                                    //RuntimeError
+                                    return NULL;
+                                }
+                                rv2->mat = *newMat2D;
+                                rv2->shape = get_shape(rv2->mat->rows, rv2->mat->cols);
+
+                                return (PyObject *)rv2;
+                            } else {
+                                PyErr_SetString(PyExc_TypeError, "PySlice_GetIndicesEx could not parse key!");
+                                return NULL;
+                            }
+
+
+
+                        } else {
+                            PyErr_SetString(PyExc_TypeError, "Key is not an integer, slice or a tuple for 2D matrix!");
+                            return NULL;
+                        }
+                    } else if (PySlice_Check(cols) && PySlice_Check(rows)) {
+
+                            Py_ssize_t start2Dtuple1 = 0;
+                            Py_ssize_t end2Dtuple1 = 0;
+                            Py_ssize_t step2Dtuple1 = 0;
+                            Py_ssize_t sliceLength2Dtuple1 = 0;
+                            int success2Dtuple1 = PySlice_GetIndicesEx(rows, length, &start2Dtuple1, &end2Dtuple1, &step2Dtuple1, &sliceLength2Dtuple1);
+                            
+                            Py_ssize_t start2Dtuple2 = 0;
+                            Py_ssize_t end2Dtuple2 = 0;
+                            Py_ssize_t step2Dtuple2 = 0;
+                            Py_ssize_t sliceLength2Dtuple2 = 0;
+                            int success2Dtuple2 = PySlice_GetIndicesEx(cols, length, &start2Dtuple2, &end2Dtuple2, &step2Dtuple2, &sliceLength2Dtuple2);
+           
+                            if (success2Dtuple1 == 0 && success2Dtuple2 == 0) {
+
+                                matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
+                                Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+                                
+                                int allRefSuccess2D;
+                                
+                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple1, start2Dtuple2, end2Dtuple1, end2Dtuple2);
+                                if (allRefSuccess2D != 0) {
+                                    //RuntimeError
+                                    return NULL;
+                                }
+                                rv2->mat = *newMat2D;
+                                rv2->shape = get_shape(rv2->mat->rows, rv2->mat->cols);
+
+                                return (PyObject *)rv2;
+                            } else {
+                                PyErr_SetString(PyExc_TypeError, "PySlice_GetIndicesEx could not parse key!");
+                                return NULL;
+                            }
+
+
+                    } else {
+                        PyErr_SetString(PyExc_TypeError, "Key is not an integer, slice or a tuple for 2D matrix!");
+                        return NULL;
+                    }
+                } else {
+                    PyErr_SetString(PyExc_TypeError, "Invalid arguments for 2D tuple!");
+                    return NULL;
+                }
+
+
+
+            } else {
+                PyErr_SetString(PyExc_TypeError, "Tuple is not of size 2!");
+                return NULL;
+            }
+
+
 
         } else {
             PyErr_SetString(PyExc_TypeError, "Key is not an integer, slice or a tuple for 2D matrix!");
