@@ -148,7 +148,7 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
     //double **newData = (double **) malloc(sizeof(newCols) * (rows-row_offset);
     
 //	
-      int y,w;
+      int w;
       double **outer = (double**)malloc(sizeof(double*)*rows);
       //outer = &(from->data[row_offset]);
       for (w = 0; w < rows; w++) {

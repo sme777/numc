@@ -619,7 +619,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             }
             matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
             Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-            int integer2DSuccess = allocate_matrix_ref(newMat2D, self->mat, selectedRow, 0, selectedRow + 1, self->mat->cols); 
+            int integer2DSuccess = allocate_matrix_ref(newMat2D, self->mat, selectedRow, 0, 1, self->mat->cols); 
             if (integer2DSuccess != 0) {
                 //runtime error
                 Matrix61c_dealloc(rv2);
@@ -644,7 +644,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                 
                 int allRefSuccess2D;
                 
-                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dslice, 0, end2Dslice, self->mat->cols);
+                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dslice, 0, end2Dslice - start2Dslice, self->mat->cols);
                 if (allRefSuccess2D != 0) {
                     //RuntimeError
                     Matrix61c_dealloc(rv2);
@@ -688,7 +688,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                                 
                                 int allRefSuccess2D;
                                 
-                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, rowIndex, start2Dtuple, rowIndex+1, end2Dtuple);
+                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, rowIndex, start2Dtuple, 1, end2Dtuple-start2Dttuple);
                                 if (allRefSuccess2D != 0) {
                                     //RuntimeError
                                     Matrix61c_dealloc(rv2);
@@ -723,7 +723,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                                 
                                 int allRefSuccess2D;
                                 
-                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple, colIndex, end2Dtuple, colIndex+1);
+                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple, colIndex, end2Dtuple-start2Dttuple, 1);
                                 if (allRefSuccess2D != 0) {
                                     //RuntimeError
                                     Matrix61c_dealloc(rv2);
@@ -763,7 +763,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                                 
                                 int allRefSuccess2D;
                                 
-                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple1, start2Dtuple2, end2Dtuple1, end2Dtuple2);
+                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple1, start2Dtuple2, end2Dtuple1-start2Dtuple1, end2Dtuple2-start2Dtuple2);
                                 if (allRefSuccess2D != 0) {
                                     //RuntimeError
                                     Matrix61c_dealloc(rv2);
