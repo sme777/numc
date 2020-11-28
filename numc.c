@@ -807,10 +807,10 @@ int Matrix61c_set_subscript(Matrix61c* self, PyObject *key, PyObject *v) {
 
     PyObject *subscripted = Matrix61c_subscript(self, key);
     if (subscripted != NULL) {
-        //Matrix61c *rv = (Matrix61c*)subscripted;
+        Matrix61c *rv = (Matrix61c*)subscripted;
         int rows = rv->mat->rows;
         int cols = rv->mat->cols;
-        int i, j, count;
+        //int i, j, count;
 
 
         if (rows == 1 && cols == 1) {
@@ -835,17 +835,17 @@ int Matrix61c_set_subscript(Matrix61c* self, PyObject *key, PyObject *v) {
                     return 0;
                 }
             } else if (PySlice_Check(key)) {
-                
+                return 0;
             } else if (PyTuple_Check(key)) {
-
+		return 0;
             } else {
                 PyErr_SetString(PyExc_TypeError, "The Key is not valid!");
                 return -1;
             }
         } else if (rows == 1 || cols == 1) {
-            init_1d(self, rows, cols, v);
+            return init_1d(subscripted, rows, cols, v);
         } else {
-            init_2d(self, v);
+            return init_2d(subscripted, v);
         }
     } else {
         return -1;
