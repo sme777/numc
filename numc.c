@@ -579,9 +579,20 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             Py_ssize_t sliceLength = 0;
             int success = PySlice_GetIndicesEx(key, length, &start, &end, &step, &sliceLength);
             if (success == 0) {
-                matrix **newMat = (matrix **) malloc(sizeof(matrix*));
-                Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
                 
+
+		if (end-start == 1) {
+			if (self->mat->rows ==1) {
+				return PyFloat_FromDouble(self->mat->data[0][start]);
+			} else {
+				return PyFloat_FromDouble(self->mat->data[start][0]);
+			}
+		
+		}
+
+		matrix **newMat = (matrix **) malloc(sizeof(matrix*));
+                Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+		                
                 int allRefSuccess;
                 if (self->mat->rows == 1) {
                     allRefSuccess = allocate_matrix_ref(newMat, self->mat, 0, start, 1, end-start);  
@@ -688,7 +699,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                                 
                                 int allRefSuccess2D;
                                 
-                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, rowIndex, start2Dtuple, 1, end2Dtuple-start2Dttuple);
+                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, rowIndex, start2Dtuple, 1, end2Dtuple-start2Dtuple);
                                 if (allRefSuccess2D != 0) {
                                     //RuntimeError
                                     Matrix61c_dealloc(rv2);
@@ -723,7 +734,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                                 
                                 int allRefSuccess2D;
                                 
-                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple, colIndex, end2Dtuple-start2Dttuple, 1);
+                                allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple, colIndex, end2Dtuple-start2Dtuple, 1);
                                 if (allRefSuccess2D != 0) {
                                     //RuntimeError
                                     Matrix61c_dealloc(rv2);
