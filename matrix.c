@@ -126,8 +126,8 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
         return -1;
     }
     
-    (*mat)->rows = rows - row_offset;
-    (*mat)->cols = cols - col_offset;
+    (*mat)->rows = rows ;//- row_offset;
+    (*mat)->cols = cols ;//- col_offset;
     if (rows- row_offset == 1 || cols- col_offset == 1) {
 	    (*mat)->is_1d = 1;
     } else {
@@ -137,7 +137,7 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
     (*mat)->parent = from;
     (*mat)->ref_cnt = 1;
     from->ref_cnt += 1; //increment that of parent
-
+   // (*mat)->data = &from->data[row_offset];
 
     //double *newCols = (double *) malloc(sizeof(double) * cols);
     
@@ -145,31 +145,38 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
      //   return -1;
    // }
     
-   // double **newData = (double **) malloc(sizeof(newCols) * rows);
+    //double **newData = (double **) malloc(sizeof(newCols) * (rows-row_offset);
     
-	
-    int w;
-    double **outer = (double**)malloc(sizeof(double*)*rows);
-    for (w = 0; w < rows - row_offset; w++) {
-	    double* inner = (double*)malloc(sizeof(double)*cols);
-	    outer[w] = inner;
-    }
+//	
+      int y,w;
+      double **outer = (double**)malloc(sizeof(double*)*rows);
+      //outer = &(from->data[row_offset]);
+      for (w = 0; w < rows; w++) {
+	      outer[w] = from->data[row_offset+w]+col_offset;
+	     // *(outer+w) = (*(outer+w)+col_offset);
+	     // *outer[w] = *(outer[w]+col_offset);
+      }
+      //      for (w = 0; w < rows - row_offset; w++) {
+//	    double* inner = (double*)malloc(sizeof(double)*cols);
+//	   *(outer[w]) = &(from->data[row_offset+w]);
+//      }
+      (*mat)->data = outer;
 
-    if (outer == NULL) {
-        return -1;
-    }
+//    if (outer == NULL) {
+ //       return -1;
+ //   }
 
-    double **parentData = from->data;
-    int i, j;
+   // double **parentData = from->data;
+    //int i, j;
 
-    for (i = 0; i < rows - row_offset; i++) {
-        for (j = 0; j < cols - col_offset; j++) {
+ //   for (i = 0; i < rows - row_offset; i++) {
+  //      for (j = 0; j < cols - col_offset; j++) {
 	    //consider edge case when offset +rows > from->rows
-            outer[i][j] = parentData[row_offset + i][col_offset + j];
-        }
-    }
+    //        outer[i][j] = parentData[row_offset + i][col_offset + j];
+      //  }
+  //  }
 
-    (*mat)->data = outer;
+   // (*mat)->data = outer;
     return 0;
     /* TODO: YOUR CODE HERE */
 }
@@ -361,8 +368,14 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
             mul_matrix(result, mat, mat);
         } else {
 	    matrix *copy = NULL;
-	    allocate_matrix_ref(&copy, result, 0, 0, result->rows, result->cols);
-            mul_matrix(result, copy, mat);
+	    allocate_matrix(&copy, result->rows, result->cols);
+            int i, j;
+	    for (i = 0; i < result->rows; i++) {
+		    for (j = 0; j < result->cols; j++) {
+			    set(copy, i, j, result->data[i][j]);
+		    }
+	    }
+	    mul_matrix(result, copy, mat);
 	    deallocate_matrix(copy);
         }
         pow--; 

@@ -584,9 +584,9 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                 
                 int allRefSuccess;
                 if (self->mat->rows == 1) {
-                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, 0, start, 1, end);  
+                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, 0, start, 1, end-start);  
                 } else {
-                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, start, 0, end, 1);
+                    allRefSuccess = allocate_matrix_ref(newMat, self->mat, start, 0, end-start, 1);
                 }
                 if (allRefSuccess != 0) {
                     //RuntimeError
