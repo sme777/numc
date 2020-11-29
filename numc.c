@@ -556,7 +556,6 @@ PyMethodDef Matrix61c_methods[] = {
 PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
     /* TODO: YOUR CODE HERE */
     if (self->mat->rows == 1 || self->mat->cols == 1) {
-        //1d matrix
         int length;
         if (self->mat->rows == 1) {
             length = self->mat->cols;
@@ -821,7 +820,6 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             PyErr_SetString(PyExc_TypeError, "Key is not an integer, slice or a tuple for 2D matrix!");
             return NULL;
         }
-        //2d matrix
     }
 }
 
@@ -832,7 +830,6 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
  */
 int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
     /* TODO: YOUR CODE HERE */
-
     PyObject *subscripted = Matrix61c_subscript(self, key);
     if (subscripted != NULL) {
 
@@ -876,29 +873,24 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                 } else {
                     set(self->mat, start, 0, value);
                 }
-		return 0;
+                return 0;
 
             } else if (PyTuple_Check(key)) {
-                //
                 int length = self->mat->rows;
                 PyObject *rows = NULL;
                 PyObject *cols = NULL;
-
                 PyArg_UnpackTuple(key, "args", 2, 2, &rows, &cols);
                 if (PyLong_Check(rows)) {
-
                     if (PyLong_Check(cols)) {
-                        set(self->mat, (int)PyLong_AsLong(rows), (int)PyLong_AsLong(cols), value);
-                        return 0;
-		    } else {
+                        set(self->mat, (int)PyLong_AsLong(rows), (int)PyLong_AsLong(cols), value);  
+                    } else {
                         Py_ssize_t startTuple = 0;
                         Py_ssize_t endTuple = 0;
                         Py_ssize_t stepTuple = 0;
                         Py_ssize_t sliceLengthTuple = 0;
                         PySlice_GetIndicesEx(cols, length, &startTuple, &endTuple, &stepTuple, &sliceLengthTuple);
-                        set(self->mat, (int)PyLong_AsLong(rows), startTuple, value);
-                        return 0;
-		    }
+                        set(self->mat, (int)PyLong_AsLong(rows), startTuple, value);  
+                    }
                 } else {
                     if (PyLong_Check(cols)) {
                         Py_ssize_t startTuple = 0;
@@ -907,8 +899,7 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                         Py_ssize_t sliceLengthTuple = 0;
                         PySlice_GetIndicesEx(rows, length, &startTuple, &endTuple, &stepTuple, &sliceLengthTuple);
                         set(self->mat, startTuple, (int)PyLong_AsLong(cols), value);
-                        return 0;
-		    } else {
+                    } else {
                         Py_ssize_t startTuple1 = 0;
                         Py_ssize_t endTuple1 = 0;
                         Py_ssize_t stepTuple1 = 0;
@@ -921,11 +912,9 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                         Py_ssize_t sliceLengthTuple2 = 0;
                         PySlice_GetIndicesEx(cols, length, &startTuple2, &endTuple2, &stepTuple2, &sliceLengthTuple2);
                         set(self->mat, startTuple1, startTuple2, value);
-                        return 0;
-		    }
-
+                    }
                 }
-                //
+                return 0;
             } else {
                 PyErr_SetString(PyExc_TypeError, "The Key is not valid!");
                 return -1;
@@ -938,17 +927,12 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
             int cols = rv->mat->cols;
             int size = PyList_Size(v);
             int i, j;
-
             if (rows == 1 || cols == 1) {
-
                 if (!(PyList_Check(v)) || PyList_Size(v) != rows * cols) {
                     return -1;
                 }
-
-
                 int w;
                 for (w = 0; w < size; w++) {
-                    //int x = PyList_GetItem(v ,w);
                     if (!PyLong_Check(PyList_GetItem(v, w)) && !PyFloat_Check(PyList_GetItem(v, w))) {
                         return -1;
                     }
@@ -962,7 +946,6 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                 }
                 return 0;
             } else {
-
                 int y;
                 for (y = 0; y < size; y++) {
                     if (!PyList_Check(PyList_GetItem(v, y))) {
@@ -977,7 +960,6 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                         }
                     }
                 }
-
                 int outer, inner;
                 for (outer = 0; outer < rows; outer++) {
                     for (inner = 0; inner < cols; inner++) {
@@ -1020,7 +1002,6 @@ int isASingleNumberIndex(Matrix61c *self, PyObject *key) {
         int length = self->mat->rows;
         PyObject *rows = NULL;
         PyObject *cols = NULL;
-
         PyArg_UnpackTuple(key, "args", 2, 2, &rows, &cols);
         if (PyLong_Check(rows)) {
 
@@ -1056,13 +1037,11 @@ int isASingleNumberIndex(Matrix61c *self, PyObject *key) {
                 Py_ssize_t stepTuple1 = 0;
                 Py_ssize_t sliceLengthTuple1 = 0;
                 int successTuple1 = PySlice_GetIndicesEx(rows, length, &startTuple1, &endTuple1, &stepTuple1, &sliceLengthTuple1);
-
                 Py_ssize_t startTuple2 = 0;
                 Py_ssize_t endTuple2 = 0;
                 Py_ssize_t stepTuple2 = 0;
                 Py_ssize_t sliceLengthTuple2 = 0;
                 int successTuple2 = PySlice_GetIndicesEx(cols, length, &startTuple2, &endTuple2, &stepTuple2, &sliceLengthTuple2);
-
                 if (successTuple1 == 0 &&  successTuple2 == 0 && endTuple1 - startTuple1 == 1 && endTuple2 - startTuple2 == 1) {
                     return 1;
                 } else {
