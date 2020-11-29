@@ -565,9 +565,20 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
         }
         if (PyLong_Check(key)) {
             int index = (int)PyLong_AsLong(key);
-            if (self->mat->rows == 1) {
+            
+	   
+	   
+	    if (self->mat->rows == 1) {
+	       if (index >= self->mat->cols || index < 0) {
+		       PyErr_SetString(PyExc_IndexError, "Index out of range!");
+		       return NULL;
+	       }
                return PyFloat_FromDouble(self->mat->data[0][index]);
 	    } else {
+		    if (index >= self->mat->rows || index < 0) {
+			    PyErr_SetString(PyExc_IndexError, "Index out of range!");
+			    return NULL;
+		    }
                return PyFloat_FromDouble(self->mat->data[index][0]);
 	    }
             
@@ -578,7 +589,12 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             Py_ssize_t step = 0;
             Py_ssize_t sliceLength = 0;
             int success = PySlice_GetIndicesEx(key, length, &start, &end, &step, &sliceLength);
-            if (success == 0) {
+            if (end - start == 0 || step != 1) {
+		PyErr_SetString(PyExc_ValueError, "Slice info not valid!");
+		return NULL;
+	    }
+	    
+	    if (success == 0) {
                 
 
 		if (end-start == 1) {
@@ -624,8 +640,8 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
 
         if (PyLong_Check(key)) {
             int selectedRow = (int)PyLong_AsLong(key);
-            if (selectedRow >= self->mat->rows) {
-                //value error
+            if (selectedRow >= self->mat->rows || selectedRow < 0) {
+                PyErr_SetString(PyExc_IndexError, "Index out of range!");
                 return NULL;
             }
             matrix **newMat2D = (matrix **) malloc(sizeof(matrix*));
@@ -647,8 +663,16 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             Py_ssize_t end2Dslice = 0;
             Py_ssize_t step2Dslice = 0;
             Py_ssize_t sliceLength2Dslice = 0;
-            int success2Dslice = PySlice_GetIndicesEx(key, length, &start2Dslice, &end2Dslice, &step2Dslice, &sliceLength2Dslice);
-            if (success2Dslice == 0) {
+	    
+	    
+	    int success2Dslice = PySlice_GetIndicesEx(key, length, &start2Dslice, &end2Dslice, &step2Dslice, &sliceLength2Dslice);
+            if (end2Dslice - start2Dslice == 0 || step2Dslice != 1) {
+		    PyErr_SetString(PyExc_ValueError, "Slice info not valid!");
+		    return NULL;
+	    }
+	    
+	    
+	    if (success2Dslice == 0) {
 
 
                 //if (end2Dslice-start == 1) {
@@ -690,18 +714,33 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                 if (PyArg_UnpackTuple(key, "args", 2, 2, &rows, &cols)) {
                     if (PyLong_Check(rows)) {
                         int rowIndex = (int)PyLong_AsLong(rows);
-                        if (PyLong_Check(cols)) {
+                        
+			if (rowIndex >= self->mat->rows || rowIndex < 0) {
+				PyErr_SetString(PyExc_IndexError, "Index out of range!");
+				return NULL;
+			}
+			if (PyLong_Check(cols)) {
                             
-                            int colIndex = (int)PyLong_AsLong(cols);
-                          return PyFloat_FromDouble(self->mat->data[rowIndex][colIndex]);
+                          int colIndex = (int)PyLong_AsLong(cols);
+                          if (colIndex >= self->mat->cols || colIndex < 0) {
+				  PyErr_SetString(PyExc_IndexError, "Index out of range!");
+				  return NULL;
+			  }
+			 
+			  return PyFloat_FromDouble(self->mat->data[rowIndex][colIndex]);
 
                         } else if (PySlice_Check(cols)) {
                             Py_ssize_t start2Dtuple = 0;
                             Py_ssize_t end2Dtuple = 0;
                             Py_ssize_t step2Dtuple = 0;
                             Py_ssize_t sliceLength2Dtuple = 0;
-                            int success2Dtuple = PySlice_GetIndicesEx(cols, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
-           
+			    
+			    
+			    int success2Dtuple = PySlice_GetIndicesEx(cols, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
+           		    if (end2Dtuple - start2Dtuple == 0 || step2Dtuple != 1) {
+				    PyErr_SetString(PyExc_ValueError, "Slice info not valid!");
+				    return NULL;
+			    }
                             if (success2Dtuple == 0) {
                                 if (end2Dtuple-start2Dtuple == 1) {  
                                     return PyFloat_FromDouble(self->mat->data[rowIndex][start2Dtuple]);
@@ -733,14 +772,27 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                         }
                     } else if (PyLong_Check(cols)) {
                         int colIndex = (int)PyLong_AsLong(cols);
-                        if (PySlice_Check(rows)) {
+                        if (colIndex >= self->mat->cols || colIndex < 0) {
+				PyErr_SetString(PyExc_IndexError, "Index out of range!");
+				return NULL;
+			}
+		       	if (PySlice_Check(rows)) {
 
                             Py_ssize_t start2Dtuple = 0;
                             Py_ssize_t end2Dtuple = 0;
                             Py_ssize_t step2Dtuple = 0;
                             Py_ssize_t sliceLength2Dtuple = 0;
-                            int success2Dtuple = PySlice_GetIndicesEx(rows, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
-                            if (success2Dtuple == 0) {
+			    
+			    
+			    int success2Dtuple = PySlice_GetIndicesEx(rows, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
+                            if (end2Dtuple - start2Dtuple == 0 || step2Dtuple != 1) {
+				    PyErr_SetString(PyExc_TypeError, "slice info not valid!");
+				    return NULL;
+			    }
+			    
+			    
+			    
+			    if (success2Dtuple == 0) {
                                 if (end2Dtuple-start2Dtuple == 1) {  
                                     return PyFloat_FromDouble(self->mat->data[start2Dtuple][colIndex]);
                                 }
@@ -782,6 +834,11 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                             Py_ssize_t sliceLength2Dtuple2 = 0;
                             int success2Dtuple2 = PySlice_GetIndicesEx(cols, length, &start2Dtuple2, &end2Dtuple2, &step2Dtuple2, &sliceLength2Dtuple2);
                             
+			    if (end2Dtuple1 - start2Dtuple1 == 0 || end2Dtuple2 - start2Dtuple2 == 0 || step2Dtuple1 != 1 || step2Dtuple2 != 1) {
+				    PyErr_SetString(PyExc_ValueError, "Slice info not valid!");
+				    return NULL;
+			    }
+
                             if (end2Dtuple1-start2Dtuple1 == 1 && end2Dtuple2-start2Dtuple2 == 1) {  
                                     return PyFloat_FromDouble(self->mat->data[start2Dtuple1][start2Dtuple2]);
                             }

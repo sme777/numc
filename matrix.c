@@ -128,7 +128,7 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
     
     (*mat)->rows = rows ;//- row_offset;
     (*mat)->cols = cols ;//- col_offset;
-    if (rows- row_offset == 1 || cols- col_offset == 1) {
+    if (rows == 1 || cols == 1) {
 	    (*mat)->is_1d = 1;
     } else {
 	    (*mat)->is_1d = 0;
