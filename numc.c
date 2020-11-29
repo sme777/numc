@@ -836,7 +836,7 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
         if (isASingleNumberIndex(self, subscripted)) {
             double value;
             if (!(PyLong_Check(v) || PyFloat_Check(v))) {
-                PyErr_SetString(PyExc_ValueError, "The Value is not of type integer or float!");
+                PyErr_SetString(PyExc_TypeError, "The Value is not of type integer or float!");
                 return -1;
             }
             if (PyLong_Check(v)) {
@@ -882,14 +882,14 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                 PyArg_UnpackTuple(key, "args", 2, 2, &rows, &cols);
                 if (PyLong_Check(rows)) {
                     if (PyLong_Check(cols)) {
-                        set(self->mat, (int)PyLong_AsLong(rows), (int)PyLong_AsLong(cols), value);  
+                        set(self->mat, (int)PyLong_AsLong(rows), (int)PyLong_AsLong(cols), value);
                     } else {
                         Py_ssize_t startTuple = 0;
                         Py_ssize_t endTuple = 0;
                         Py_ssize_t stepTuple = 0;
                         Py_ssize_t sliceLengthTuple = 0;
                         PySlice_GetIndicesEx(cols, length, &startTuple, &endTuple, &stepTuple, &sliceLengthTuple);
-                        set(self->mat, (int)PyLong_AsLong(rows), startTuple, value);  
+                        set(self->mat, (int)PyLong_AsLong(rows), startTuple, value);
                     }
                 } else {
                     if (PyLong_Check(cols)) {
@@ -921,7 +921,10 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
             }
 
         } else {
-
+            if (!PyList_Check(v)) {
+                PyErr_SetString(PyExc_TypeError, "The Value is not of a list!");
+                return -1;
+            }
             Matrix61c *rv = (Matrix61c*)subscripted;
             int rows = rv->mat->rows;
             int cols = rv->mat->cols;
@@ -934,6 +937,7 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                 int w;
                 for (w = 0; w < size; w++) {
                     if (!PyLong_Check(PyList_GetItem(v, w)) && !PyFloat_Check(PyList_GetItem(v, w))) {
+                        PyErr_SetString(PyExc_ValueError, "The list contains a non-double type value!");
                         return -1;
                     }
                 }
@@ -947,14 +951,25 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                 return 0;
             } else {
                 int y;
+                if (PyList_Size(v) != rows) {
+                    PyErr_SetString(PyExc_ValueError, "The list is of wrong size!");
+                    return -1;
+                }
+
                 for (y = 0; y < size; y++) {
                     if (!PyList_Check(PyList_GetItem(v, y))) {
+                        PyErr_SetString(PyExc_ValueError, "The list contains a non-list type value!");
                         return -1;
                     } else {
                         int x;
                         int innerSize = PyList_Size(PyList_GetItem(v, y));
+                        if (PyList_Size(PyList_GetItem(v, y)) != cols) {
+                            PyErr_SetString(PyExc_ValueError, "The list is of wrong size!");
+                            return -1;
+                        }
                         for (x = 0; x < innerSize; x++) {
                             if (!(PyLong_Check(PyList_GetItem(PyList_GetItem(v, y), x))) && !(PyFloat_Check(PyList_GetItem(PyList_GetItem(v, y), x)))) {
+                                PyErr_SetString(PyExc_ValueError, "The list contains a non-double type value!");
                                 return -1;
                             }
                         }
