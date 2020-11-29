@@ -326,6 +326,19 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
         return -1;
     }
 
+    if (pow == 0) {
+        int x, y;
+        for (x = 0; x < result->rows; x++) {
+            for (y = 0; y < result->cols; y++) {
+                if (x == y) {
+                    set(result, x, y, 1);
+                } else {
+                    set(result, x, y, 0);
+                }
+            }
+        }
+    }
+
     int first = pow;
     while (pow - 1 > 0) {
         if (pow == first) {
