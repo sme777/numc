@@ -431,6 +431,7 @@ PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
             rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
             int success = pow_matrix(rv->mat, self->mat, toPow);
             if (success != 0) {
+                PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
                 return NULL;
             }
             return (PyObject *)rv;

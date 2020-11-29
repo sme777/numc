@@ -322,7 +322,7 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     /* TODO: YOUR CODE HERE */
     if (pow < 0 || result->rows != mat->rows
             || result->cols != mat->cols || mat->rows != mat->cols) {
-        PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
+
         return -1;
     }
 
@@ -337,25 +337,32 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
                 }
             }
         }
-    }
-
-    int first = pow;
-    while (pow - 1 > 0) {
-        if (pow == first) {
-            mul_matrix(result, mat, mat);
-        } else {
-            matrix *copy = NULL;
-            allocate_matrix(&copy, result->rows, result->cols);
-            int i, j;
-            for (i = 0; i < result->rows; i++) {
-                for (j = 0; j < result->cols; j++) {
-                    set(copy, i, j, result->data[i][j]);
-                }
+    } else if (pow == 1) {
+        int a, b;
+        for (a = 0; x < result->rows; x++) {
+            for (b = 0; y < result->cols; y++) {
+                set(result, a, b, mat->data[a][b]);
             }
-            mul_matrix(result, copy, mat);
-            deallocate_matrix(copy);
         }
-        pow--;
+    } else {
+        int first = pow;
+        while (pow - 1 > 0) {
+            if (pow == first) {
+                mul_matrix(result, mat, mat);
+            } else {
+                matrix *copy = NULL;
+                allocate_matrix(&copy, result->rows, result->cols);
+                int i, j;
+                for (i = 0; i < result->rows; i++) {
+                    for (j = 0; j < result->cols; j++) {
+                        set(copy, i, j, result->data[i][j]);
+                    }
+                }
+                mul_matrix(result, copy, mat);
+                deallocate_matrix(copy);
+            }
+            pow--;
+        }
     }
     return 0;
 }
