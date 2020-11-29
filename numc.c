@@ -932,7 +932,8 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
             int i, j;
             if (rows == 1 || cols == 1) {
                 if (!(PyList_Check(v)) || PyList_Size(v) != rows * cols) {
-                    return -1;
+                    PyErr_SetString(PyExc_ValueError, "The list if not of correct dimension");
+		    return -1;
                 }
                 int w;
                 for (w = 0; w < size; w++) {
