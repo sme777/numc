@@ -584,7 +584,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             Py_ssize_t step = 0;
             Py_ssize_t sliceLength = 0;
             int success = PySlice_GetIndicesEx(key, length, &start, &end, &step, &sliceLength);
-            if (end - start == 0 || step != 1) {
+            if (end - start == 0 || step != 1 || start > end) {
                 PyErr_SetString(PyExc_ValueError, "Slice info not valid!");
                 return NULL;
             }
@@ -647,7 +647,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             Py_ssize_t step2Dslice = 0;
             Py_ssize_t sliceLength2Dslice = 0;
             int success2Dslice = PySlice_GetIndicesEx(key, length, &start2Dslice, &end2Dslice, &step2Dslice, &sliceLength2Dslice);
-            if (end2Dslice - start2Dslice == 0 || step2Dslice != 1) {
+            if (end2Dslice - start2Dslice == 0 || step2Dslice != 1 || start2Dslice > end2Dslice) {
                 PyErr_SetString(PyExc_ValueError, "Slice info not valid!");
                 return NULL;
             }
@@ -697,7 +697,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                             Py_ssize_t step2Dtuple = 0;
                             Py_ssize_t sliceLength2Dtuple = 0;
                             int success2Dtuple = PySlice_GetIndicesEx(cols, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
-                            if (end2Dtuple - start2Dtuple == 0 || step2Dtuple != 1) {
+                            if (end2Dtuple - start2Dtuple == 0 || step2Dtuple != 1 || start2Dtuple > end2Dtuple) {
                                 PyErr_SetString(PyExc_ValueError, "Slice info not valid!");
                                 return NULL;
                             }
@@ -738,7 +738,7 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                             Py_ssize_t step2Dtuple = 0;
                             Py_ssize_t sliceLength2Dtuple = 0;
                             int success2Dtuple = PySlice_GetIndicesEx(rows, length, &start2Dtuple, &end2Dtuple, &step2Dtuple, &sliceLength2Dtuple);
-                            if (end2Dtuple - start2Dtuple == 0 || step2Dtuple != 1) {
+                            if (end2Dtuple - start2Dtuple == 0 || step2Dtuple != 1 || start2Dtuple > end2Dtuple) {
                                 PyErr_SetString(PyExc_TypeError, "slice info not valid!");
                                 return NULL;
                             }
@@ -778,7 +778,8 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                         Py_ssize_t step2Dtuple2 = 0;
                         Py_ssize_t sliceLength2Dtuple2 = 0;
                         int success2Dtuple2 = PySlice_GetIndicesEx(cols, length, &start2Dtuple2, &end2Dtuple2, &step2Dtuple2, &sliceLength2Dtuple2);
-                        if (end2Dtuple1 - start2Dtuple1 == 0 || end2Dtuple2 - start2Dtuple2 == 0 || step2Dtuple1 != 1 || step2Dtuple2 != 1) {
+                        if (end2Dtuple1 - start2Dtuple1 == 0 || end2Dtuple2 - start2Dtuple2 == 0 || step2Dtuple1 != 1 || step2Dtuple2 != 1 
+                            || start2Dtuple1 > end2Dtuple1 || start2Dtuple2 > end2Dtuple2) {
                             PyErr_SetString(PyExc_ValueError, "Slice info not valid!");
                             return NULL;
                         }
