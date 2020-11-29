@@ -306,17 +306,12 @@ PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
             return (PyObject *)rv;
         } else {
             deallocate_matrix(*newMat);
-            <<< <<< < HEAD
             return NULL;
         }
-        == == == =
-            return NULL;
+    } else {
+        PyErr_SetString(PyExc_TypeError, "Argument must of type numc.Matrix!");
+        return NULL;
     }
-    >>> >>> > temp
-} else {
-    PyErr_SetString(PyExc_TypeError, "Argument must of type numc.Matrix!");
-    return NULL;
-}
 }
 
 /*
@@ -886,9 +881,6 @@ int Matrix61c_set_subscript(Matrix61c* self, PyObject *key, PyObject *v) {
         return -1;
     }
 
-
-
-    >>> >>> > temp
 }
 
 PyMappingMethods Matrix61c_mapping = {
