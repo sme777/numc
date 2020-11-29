@@ -339,8 +339,8 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
         }
     } else if (pow == 1) {
         int a, b;
-        for (a = 0; x < result->rows; x++) {
-            for (b = 0; y < result->cols; y++) {
+        for (a = 0; a < result->rows; a++) {
+            for (b = 0; b < result->cols; b++) {
                 set(result, a, b, mat->data[a][b]);
             }
         }
