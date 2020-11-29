@@ -835,13 +835,13 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
 
     PyObject *subscripted = Matrix61c_subscript(self, key);
     if (subscripted != NULL) {
-        Matrix61c *rv = (Matrix61c*)subscripted;
-        int rows = rv->mat->rows;
-        int cols = rv->mat->cols;
+        //Matrix61c *rv = (Matrix61c*)subscripted;
+        //int rows = rv->mat->rows;
+        //int cols = rv->mat->cols;
         //int i, j, count;
 
 
-        if (rows == 1 && cols == 1) {
+        if (PyFloat_Check(subscripted)) {
             if (PyLong_Check(key)) {
                 int index = (int)PyLong_AsLong(key);
                 double value;
@@ -866,10 +866,74 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                 PyErr_SetString(PyExc_TypeError, "The Key is not valid!");
                 return -1;
             }
-        } else if (rows == 1 || cols == 1) {
-            return init_1d(subscripted, rows, cols, v);
+        // } else if ((Matrix61c*)) {
+        //    return init_1d(subscripted, rows, cols, v);
         } else {
-            return init_2d(subscripted, v);
+            //if (!(PyList_Check(v)) || PyList_Size(v) != rv->mat->rows * rv->mat->cols) {
+	    //    return -1;
+	    //}
+	    Matrix61c *rv = (Matrix61c*)subscripted;
+	    int rows = rv->mat->rows;
+	    int cols = rv->mat->cols;
+	    int size = PyList_Size(v);
+	    int i, j;
+
+//	    if (!(PyList_Check(v)) || PyList_Size(v) != rows * cols) {
+//		    return -1;
+//	    }
+	    
+	    if (rows == 1 || cols == 1) {
+		
+	   	if (!(PyList_Check(v)) || PyList_Size(v) != rows * cols) {
+		       return -1;
+		}	       
+		    
+		    
+		int w;	
+		for (w = 0; w < size; w++) {
+			//int x = PyList_GetItem(v ,w);
+			if (!PyLong_Check(PyList_GetItem(v, w)) && !PyFloat_Check(PyList_GetItem(v, w))) {
+				return -1;
+			}
+		}
+		int count = 0;
+	    	for (i = 0; i < rows; i++) {
+		    for (j = 0; j < cols; j++) {
+			    set(rv->mat, i, j, PyFloat_AsDouble(PyList_GetItem(v, count)));
+		    	    count++;
+		    }
+		}
+		return 0;
+	    } else {
+		
+		int y;
+		for (y = 0; y < size; y++) {
+			if (!PyList_Check(PyList_GetItem(v, y))) {
+					return -1;
+			} else {
+				int x;
+				int innerSize = PyList_Size(PyList_GetItem(v, y));
+				for (x = 0; x < innerSize; x++) {
+				       if (!(PyLong_Check(PyList_GetItem(PyList_GetItem(v, y), x))) && !(PyFloat_Check(PyList_GetItem(PyList_GetItem(v, y), x)))) {
+						       return -1;
+						       }	       
+				}
+			}
+		}
+
+		int outer, inner;
+		for (outer = 0; outer < rows; outer++) {
+			for (inner = 0; inner < cols; inner++) {
+				set(rv->mat, outer, inner, PyFloat_AsDouble(PyList_GetItem(PyList_GetItem(v, outer), inner)));
+			
+
+
+
+			}
+		}	
+		return 0;
+	    }
+           // return init_2d(subscripted, v);
         }
     } else {
         return -1;
