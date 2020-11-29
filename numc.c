@@ -351,12 +351,16 @@ PyObject *Matrix61c_multiply(Matrix61c* self, PyObject *args) {
 
         Matrix61c* other = (Matrix61c *) args;
         matrix **newMat = (matrix **) malloc(sizeof(matrix*));
-        int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
+        int allocateSuccess = allocate_matrix(newMat, self->mat->rows, other->mat->cols);
         if (allocateSuccess == 0) {
             Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
             rv->mat = *newMat;
             rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-            mul_matrix(rv->mat, self->mat, other->mat);
+            int success = mul_matrix(rv->mat, self->mat, other->mat);
+            if (success != 0) {
+                PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
+                return NULL;
+            }
             return (PyObject *)rv;
         } else {
             deallocate_matrix(*newMat);
@@ -425,7 +429,10 @@ PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
             Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
             rv->mat = *newMat;
             rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-            pow_matrix(rv->mat, self->mat, toPow);
+            int success = pow_matrix(rv->mat, self->mat, toPow);
+            if (success != 0) {
+                return NULL;
+            }
             return (PyObject *)rv;
         } else {
             deallocate_matrix(*newMat);
@@ -933,7 +940,7 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
             if (rows == 1 || cols == 1) {
                 if (!(PyList_Check(v)) || PyList_Size(v) != rows * cols) {
                     PyErr_SetString(PyExc_ValueError, "The list if not of correct dimension");
-		    return -1;
+                    return -1;
                 }
                 int w;
                 for (w = 0; w < size; w++) {

@@ -330,7 +330,6 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
     if (matrix1Cols != matrix2Rows || matrixResCols != matrix2Cols 
         || matrixResRows != matrix1Rows) {
-        PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
         return -1;
     }
 
