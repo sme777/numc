@@ -64,7 +64,8 @@ int allocate_matrix(matrix **mat, int rows, int cols) {
 
     if (rows <= 0 || cols <= 0) {
         //throw ValueError
-        return -1;
+        PyErr_SetString(PyExc_ValueError, "Given dimensions are not valid!");
+	return -1;
     }
 
     *mat = (matrix *) malloc(sizeof(matrix));
@@ -117,7 +118,8 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
                         int rows, int cols) {
 
     if (rows <= 0 || cols <= 0 || rows > from->rows || cols > from->cols || row_offset < 0 || col_offset < 0) {
-        return -1;
+        PyErr_SetString(PyExc_ValueError, "Given dimensions are not valid!");
+	return -1;
     }
     
     *mat = (matrix *) malloc(sizeof(matrix));
@@ -335,12 +337,12 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
     for (i = 0; i < matrix1Rows; i++) {
 
-        for (j = 0; j < matrix2Rows; j++) {
+        for (j = 0; j < matrix2Cols; j++) {
             sum = 0;
             for (w = 0; w < matrix1Cols; w++) {
-                sum += mat1Data[w][i] * mat2Data[j][w];
+                sum += mat1Data[i][w] * mat2Data[w][j];
             }
-            resData[j][i] = sum;
+            resData[i][j] = sum;
         }
     }
     return 0;
