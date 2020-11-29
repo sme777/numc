@@ -59,50 +59,42 @@ void rand_matrix(matrix *result, unsigned int seed, double low, double high) {
  */
 int allocate_matrix(matrix **mat, int rows, int cols) {
     /* TODO: YOUR CODE HERE */
-    
-    // add Runtime Error
 
     if (rows <= 0 || cols <= 0) {
-        //throw ValueError
         PyErr_SetString(PyExc_ValueError, "Given dimensions are not valid!");
-	return -1;
-    }
-
-    *mat = (matrix *) malloc(sizeof(matrix));
-    
-    if (mat == NULL) {
-        //throw TypeError?
         return -1;
     }
+    *mat = (matrix *) malloc(sizeof(matrix));
 
+    if (mat == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not allocate, not enough space!");
+        return -1;
+    }
     (*mat)->rows = rows;
     (*mat)->cols = cols;
-    //(*mat)->is_1d = 0; //maybe fix
     (*mat)->parent = NULL;
-    (*mat)->ref_cnt = 1; //maybe fix
-
+    (*mat)->ref_cnt = 1;
     if (rows == 1 || cols == 1) {
         (*mat)->is_1d = 1;
     } else {
         (*mat)->is_1d = 0;
     }
-
     int i;
     double **outer = (double **)calloc(rows, sizeof(double*));
-    for (i = 0; i < rows; i++) {
-    	double *inner = (double *)calloc(cols, sizeof(double));
-	outer[i] = inner;
-    }
-    
-    //double *newCols = (double *) calloc(cols, sizeof(double));
-    //double **newData = (double **) calloc(rows, sizeof(newCols));
-
     if (outer == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not allocate, not enough space!");
         return -1;
+    }
+    for (i = 0; i < rows; i++) {
+        double *inner = (double *)calloc(cols, sizeof(double));
+        if (inner == NULL) {
+            PyErr_SetString(PyExc_RuntimeError, "Could not allocate, not enough space!");
+            return -1;
+        }
+        outer[i] = inner;
     }
 
     (*mat)->data = outer;
-
     return 0;
 
 }
@@ -119,66 +111,38 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
 
     if (rows <= 0 || cols <= 0 || rows > from->rows || cols > from->cols || row_offset < 0 || col_offset < 0) {
         PyErr_SetString(PyExc_ValueError, "Given dimensions are not valid!");
-	return -1;
-    }
-    
-    *mat = (matrix *) malloc(sizeof(matrix));
-    
-    if (mat == NULL) {
         return -1;
     }
-    
-    (*mat)->rows = rows ;//- row_offset;
-    (*mat)->cols = cols ;//- col_offset;
-    if (rows == 1 || cols == 1) {
-	    (*mat)->is_1d = 1;
-    } else {
-	    (*mat)->is_1d = 0;
+
+    *mat = (matrix *) malloc(sizeof(matrix));
+
+    if (mat == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not allocate, not enough space!");
+        return -1;
     }
-    //(*mat)->is_1d = 0;
+
+    (*mat)->rows = rows ;
+    (*mat)->cols = cols ;
+    if (rows == 1 || cols == 1) {
+        (*mat)->is_1d = 1;
+    } else {
+        (*mat)->is_1d = 0;
+    }
+
     (*mat)->parent = from;
     (*mat)->ref_cnt = 1;
-    from->ref_cnt += 1; //increment that of parent
-   // (*mat)->data = &from->data[row_offset];
+    from->ref_cnt += 1;
 
-    //double *newCols = (double *) malloc(sizeof(double) * cols);
-    
-   // if (newCols == NULL) {
-     //   return -1;
-   // }
-    
-    //double **newData = (double **) malloc(sizeof(newCols) * (rows-row_offset);
-    
-//	
-      int w;
-      double **outer = (double**)malloc(sizeof(double*)*rows);
-      //outer = &(from->data[row_offset]);
-      for (w = 0; w < rows; w++) {
-	      outer[w] = from->data[row_offset+w]+col_offset;
-	     // *(outer+w) = (*(outer+w)+col_offset);
-	     // *outer[w] = *(outer[w]+col_offset);
-      }
-      //      for (w = 0; w < rows - row_offset; w++) {
-//	    double* inner = (double*)malloc(sizeof(double)*cols);
-//	   *(outer[w]) = &(from->data[row_offset+w]);
-//      }
-      (*mat)->data = outer;
-
-//    if (outer == NULL) {
- //       return -1;
- //   }
-
-   // double **parentData = from->data;
-    //int i, j;
-
- //   for (i = 0; i < rows - row_offset; i++) {
-  //      for (j = 0; j < cols - col_offset; j++) {
-	    //consider edge case when offset +rows > from->rows
-    //        outer[i][j] = parentData[row_offset + i][col_offset + j];
-      //  }
-  //  }
-
-   // (*mat)->data = outer;
+    int w;
+    double **outer = (double**)malloc(sizeof(double*)*rows);
+    if (outer == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not allocate, not enough space!");
+        return -1;
+    }
+    for (w = 0; w < rows; w++) {
+        outer[w] = from->data[row_offset + w] + col_offset;
+    }
+    (*mat)->data = outer;
     return 0;
     /* TODO: YOUR CODE HERE */
 }
@@ -192,9 +156,9 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
  */
 void deallocate_matrix(matrix *mat) {
     /* TODO: YOUR CODE HERE */
-	if (mat == NULL) {
-		return;
-	}
+    if (mat == NULL) {
+        return;
+    }
 
     if (mat->ref_cnt == 0) {
         int i;
@@ -222,7 +186,6 @@ double get(matrix *mat, int row, int col) {
 void set(matrix *mat, int row, int col, double val) {
     /* TODO: YOUR CODE HERE */
     mat->data[row][col] = val;
-    //column[row] = val;
 }
 
 /*
@@ -234,10 +197,10 @@ void fill_matrix(matrix *mat, double val) {
     int row = mat->rows;
     double **data = mat->data;
     int i, j;
-    for (i=0; i < row; i++) {
-    	for (j=0; j < col; j++) {
-    		data[i][j] = val;
-    	}
+    for (i = 0; i < row; i++) {
+        for (j = 0; j < col; j++) {
+            data[i][j] = val;
+        }
     }
 }
 
@@ -258,17 +221,17 @@ int add_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     double **data2 = mat2->data;
     double **data3 = result->data;
 
-    if (!(rowMat1 == rowMat2 && colMat1 == colMat2 
-    	&& rowMat1 == rowMatRes && colMat1 == colMatRes)) {
-    	PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
+    if (!(rowMat1 == rowMat2 && colMat1 == colMat2
+            && rowMat1 == rowMatRes && colMat1 == colMatRes)) {
+        PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
         return -1;
     }
 
     for (i = 0; i < rowMatRes; i++) {
 
-    	for (j = 0; j < colMatRes; j++) {
-    		data3[i][j] = data1[i][j] + data2[i][j];
-    	}
+        for (j = 0; j < colMatRes; j++) {
+            data3[i][j] = data1[i][j] + data2[i][j];
+        }
     }
 
     return 0;
@@ -292,18 +255,18 @@ int sub_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     double **data2 = mat2->data;
     double **data3 = result->data;
 
-    if (!(rowMat1 == rowMat2 && colMat1 == colMat2 
-    	&& rowMat1 == rowMatRes && colMat1 == colMatRes)) {
+    if (!(rowMat1 == rowMat2 && colMat1 == colMat2
+            && rowMat1 == rowMatRes && colMat1 == colMatRes)) {
         PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
-    	return -1;
+        return -1;
     }
 
     for (i = 0; i < rowMatRes; i++) {
-    	for (j = 0; j < colMatRes; j++) {
-    		data3[i][j] = data1[i][j] - data2[i][j];
-    	}
+        for (j = 0; j < colMatRes; j++) {
+            data3[i][j] = data1[i][j] - data2[i][j];
+        }
     }
-    
+
     return 0;
 }
 
@@ -330,8 +293,8 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     double sum;
 
 
-    if (matrix1Cols != matrix2Rows || matrixResCols != matrix2Cols 
-        || matrixResRows != matrix1Rows) {
+    if (matrix1Cols != matrix2Rows || matrixResCols != matrix2Cols
+            || matrixResRows != matrix1Rows) {
         return -1;
     }
 
@@ -357,8 +320,8 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 //0th power is I
 int pow_matrix(matrix *result, matrix *mat, int pow) {
     /* TODO: YOUR CODE HERE */
-    if (pow < 0 || result->rows != mat->rows 
-        || result->cols != mat->cols || mat->rows != mat->cols) {
+    if (pow < 0 || result->rows != mat->rows
+            || result->cols != mat->cols || mat->rows != mat->cols) {
         PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
         return -1;
     }
@@ -368,18 +331,18 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
         if (pow == first) {
             mul_matrix(result, mat, mat);
         } else {
-	    matrix *copy = NULL;
-	    allocate_matrix(&copy, result->rows, result->cols);
+            matrix *copy = NULL;
+            allocate_matrix(&copy, result->rows, result->cols);
             int i, j;
-	    for (i = 0; i < result->rows; i++) {
-		    for (j = 0; j < result->cols; j++) {
-			    set(copy, i, j, result->data[i][j]);
-		    }
-	    }
-	    mul_matrix(result, copy, mat);
-	    deallocate_matrix(copy);
+            for (i = 0; i < result->rows; i++) {
+                for (j = 0; j < result->cols; j++) {
+                    set(copy, i, j, result->data[i][j]);
+                }
+            }
+            mul_matrix(result, copy, mat);
+            deallocate_matrix(copy);
         }
-        pow--; 
+        pow--;
     }
     return 0;
 }
@@ -400,13 +363,13 @@ int neg_matrix(matrix *result, matrix *mat) {
 
     if (!(originalRow == newRow && originalCol == newCol)) {
         PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
-    	return -1;
+        return -1;
     }
 
     for (i = 0; i < newRow; i++) {
-    	for (j = 0; j < newCol; j++) {
-    		dataNew[i][j] = -dataOriginal[i][j];
-    	}
+        for (j = 0; j < newCol; j++) {
+            dataNew[i][j] = -dataOriginal[i][j];
+        }
     }
 
     return 0;
@@ -428,18 +391,18 @@ int abs_matrix(matrix *result, matrix *mat) {
 
     if (!(originalRow == newRow && originalCol == newCol)) {
         PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
-    	return -1;
+        return -1;
     }
 
     for (i = 0; i < newRow; i++) {
-    	for (j = 0; j < newCol; j++) {
-    		double beforeAbs = dataOriginal[i][j];
-    		if (beforeAbs >= 0) {
-    			dataNew[i][j] = beforeAbs;
-    		} else {
-    			dataNew[i][j] = -beforeAbs;
-    		}
-    	}
+        for (j = 0; j < newCol; j++) {
+            double beforeAbs = dataOriginal[i][j];
+            if (beforeAbs >= 0) {
+                dataNew[i][j] = beforeAbs;
+            } else {
+                dataNew[i][j] = -beforeAbs;
+            }
+        }
     }
 
     return 0;
