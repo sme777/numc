@@ -862,10 +862,6 @@ int Matrix61c_set_subscript(Matrix61c * self, PyObject * key, PyObject * v) {
                     set(self->mat, index, 0, value);
                     return 0;
                 }
-            } else if (PySlice_Check(key)) {
-                return 0;
-            } else if (PyTuple_Check(key)) {
-                return 0;
             } else {
                 PyErr_SetString(PyExc_TypeError, "The Key is not valid!");
                 return -1;
