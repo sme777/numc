@@ -225,18 +225,11 @@ int add_matrix(matrix *result, matrix *mat1, matrix *mat2) {
         return -1;
     }
 
-    if (rowMat1 * rowMat2 >= 10000) {
-        #pragma omp parallel for
-        for (int i = 0; i < result->rows; i++) {
-            for (int j = 0; j < result->cols; j++) {
-                result->data[i][j] = mat1->data[i][j] + mat2->data[i][j];
-            }
-        }
-    } else {
-        for (int i = 0; i < result->rows; i++) {
-            for (int j = 0; j < result->cols; j++) {
-                result->data[i][j] = mat1->data[i][j] + mat2->data[i][j];
-            }
+    
+    #pragma omp parallel for if(rowMat1 * colMat1 > 100000)
+    for (int i = 0; i < result->rows; i++) {
+        for (int j = 0; j < result->cols; j++) {
+            result->data[i][j] = mat1->data[i][j] + mat2->data[i][j];
         }
     }
 
@@ -263,18 +256,10 @@ int sub_matrix(matrix *result, matrix *mat1, matrix *mat2) {
         return -1;
     }
 
-    if (rowMat1 * rowMat2 >= 10000) {
-        #pragma omp parallel for
-        for (int i = 0; i < result->rows; i++) {
-            for (int j = 0; j < result->cols; j++) {
-                result->data[i][j] = mat1->data[i][j] - mat2->data[i][j];
-            }
-        }
-    } else {
-        for (int i = 0; i < result->rows; i++) {
-            for (int j = 0; j < result->cols; j++) {
-                result->data[i][j] = mat1->data[i][j] - mat2->data[i][j];
-            }
+    #pragma omp parallel for if(rowMat1 * colMat1 > 100000)
+    for (int i = 0; i < result->rows; i++) {
+        for (int j = 0; j < result->cols; j++) {
+            result->data[i][j] = mat1->data[i][j] - mat2->data[i][j];
         }
     }
     return 0;
@@ -409,18 +394,11 @@ int neg_matrix(matrix *result, matrix *mat) {
         return -1;
     }
 
-    if (originalRow * originalCol >= 10000) {
-        #pragma omp parallel for
-        for (int i = 0; i < result->rows; i++) {
-            for (int j = 0; j < result->cols; j++) {
-                result->data[i][j] = -mat->data[i][j];
-            }
-        }
-    } else {
-        for (int i = 0; i < result->rows; i++) {
-            for (int j = 0; j < result->cols; j++) {
-                result->data[i][j] = -mat->data[i][j];
-            }
+     
+    #pragma omp parallel for if(originalRow * originalCol >= 100000)
+    for (int i = 0; i < result->rows; i++) {
+        for (int j = 0; j < result->cols; j++) {
+            result->data[i][j] = -mat->data[i][j];
         }
     }
 
@@ -445,8 +423,7 @@ int abs_matrix(matrix *result, matrix *mat) {
         return -1;
     }
 
-    if (originalRow * originalCol >= 10000) {
-        #pragma omp parallel for
+        #pragma omp parallel for if(originalRow * originalCol >= 100000)
         for (int i = 0; i < result->rows; i++) {
             for (int j = 0; j < result->cols; j++) {
                 double beforeAbs = mat->data[i][j];
@@ -457,18 +434,6 @@ int abs_matrix(matrix *result, matrix *mat) {
                 }
             }
         }
-    } else {
-        for (int i = 0; i < result->rows; i++) {
-            for (int j = 0; j < result->cols; j++) {
-                double beforeAbs = mat->data[i][j];
-                if (beforeAbs >= 0) {
-                    result->data[i][j] = beforeAbs;
-                } else {
-                    result->data[i][j] = -beforeAbs;
-                }
-            }
-        }
-    }
 
     return 0;
 
