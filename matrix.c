@@ -272,6 +272,11 @@ int sub_matrix(matrix *result, matrix *mat1, matrix *mat2) {
  */
 int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     /* TODO: YOUR CODE HERE */
+
+    //1. cache block transpose
+    //2. simd
+    //3. unroll 
+    //4. openMP
     int matrix1Rows = mat1->rows;
     int matrix1Cols = mat1->cols;
 
@@ -281,11 +286,10 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     int matrixResRows = result->rows;
     int matrixResCols = result->cols;
 
-    double **mat1Data = mat1->data;
-    double **mat2Data = mat2->data;
-    double **resData = result->data;
-    int i, j, w;
-    double sum;
+    //double **mat1Data = mat1->data;
+    //double **mat2Data = mat2->data;
+    //double **resData = result->data;
+    //double sum;
 
 
     if (matrix1Cols != matrix2Rows || matrixResCols != matrix2Cols
@@ -293,17 +297,159 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
         return -1;
     }
 
-    for (i = 0; i < matrix1Rows; i++) {
-        for (j = 0; j < matrix2Cols; j++) {
-            sum = 0;
-            for (w = 0; w < matrix1Cols; w++) {
-                sum += mat1Data[i][w] * mat2Data[w][j];
-            }
-            resData[i][j] = sum;
+    matrix *copy = NULL;
+    allocate_matrix(&copy, mat2->cols, mat2->rows);
+
+    #pragma omp parallel for if(matrix2Cols * matrix2Rows > 100000)
+    for (int i = 0; i < (matrix2Cols / 8) * 8; i += 8) {
+        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
+            set(copy, i, j, mat2->data[j][i]);
+            set(copy, i, j+1, mat2->data[j][i]);
+            set(copy, i, j+2, mat2->data[j][i]);
+            set(copy, i, j+3, mat2->data[j][i]);
+        }
+
+        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
+            set(copy, i, j, mat2->data[j][i]);
+        }
+
+        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
+            set(copy, i+1, j, mat2->data[j][i+1]);
+            set(copy, i+1, j+1, mat2->data[j][i+1]);
+            set(copy, i+1, j+2, mat2->data[j][i+1]);
+            set(copy, i+1, j+3, mat2->data[j][i+1]);
+        }
+
+        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
+            set(copy, i+1, j, mat2->data[j][i+1]);
+        }
+
+        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
+            set(copy, i+2, j, mat2->data[j][i+2]);
+            set(copy, i+2, j+1, mat2->data[j][i+2]);
+            set(copy, i+2, j+2, mat2->data[j][i+2]);
+            set(copy, i+2, j+3, mat2->data[j][i+2]);
+        }
+
+        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
+            set(copy, i+2, j, mat2->data[j][i+2]);
+        }
+
+        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
+            set(copy, i+3, j, mat2->data[j][i+3]);
+            set(copy, i+3, j+1, mat2->data[j][i+3]);
+            set(copy, i+3, j+2, mat2->data[j][i+3]);
+            set(copy, i+3, j+3, mat2->data[j][i+3]);
+        }
+
+        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
+            set(copy, i+3, j, mat2->data[j][i+3]);
+        }
+
+        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
+            set(copy, i+4, j, mat2->data[j][i+4]);
+            set(copy, i+4, j+1, mat2->data[j][i+4]);
+            set(copy, i+4, j+2, mat2->data[j][i+4]);
+            set(copy, i+4, j+3, mat2->data[j][i+4]);
+        }
+
+        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
+            set(copy, i+4, j, mat2->data[j][i+4]);
+        }
+
+        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
+            set(copy, i+5, j, mat2->data[j][i+5]);
+            set(copy, i+5, j+1, mat2->data[j][i+5]);
+            set(copy, i+5, j+2, mat2->data[j][i+5]);
+            set(copy, i+5, j+3, mat2->data[j][i+5]);
+        }
+
+        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
+            set(copy, i+5, j, mat2->data[j][i+5]);
+        }
+
+        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
+            set(copy, i+6, j, mat2->data[j][i+6]);
+            set(copy, i+6, j+1, mat2->data[j][i+6]);
+            set(copy, i+6, j+2, mat2->data[j][i+6]);
+            set(copy, i+6, j+3, mat2->data[j][i+6]);
+        }
+
+        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
+            set(copy, i+6, j, mat2->data[j][i+6]);
+        }
+
+        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
+            set(copy, i+7, j, mat2->data[j][i+7]);
+            set(copy, i+7, j+1, mat2->data[j][i+7]);
+            set(copy, i+7, j+2, mat2->data[j][i+7]);
+            set(copy, i+7, j+3, mat2->data[j][i+7]);
+        }
+
+        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
+            set(copy, i+7, j, mat2->data[j][i+7]);
         }
     }
-    return 0;
 
+
+    #pragma omp parallel for if((matrix2Cols - ((matrix2Cols / 8) * 8)) * matrix2Rows > 100000)    
+    for (int i = matrix2Cols - (matrix2Cols % 8); i < matrix2Cols; i++) {
+        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
+            set(copy, i, j, mat2->data[j][i]);
+            set(copy, i, j+1, mat2->data[j][i]);
+            set(copy, i, j+2, mat2->data[j][i]);
+            set(copy, i, j+3, mat2->data[j][i]);
+        }
+
+        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
+            set(copy, i, j, mat2->data[j][i]);
+        }
+
+    }
+
+    //#pragma omp parallel for if(matrix1Cols * matrix2Rows > 100000)
+    for (int i = 0; i < mat1->rows; i++) {
+        for (int j = 0; j < copy->rows; j++) {
+            double p[4] = {0,0,0,0};
+            __m256d z = _mm256_set1_pd(0);
+            for (int k = 0; k < (copy->cols / 16) * 16; k += 16) {
+                __m256d x = _mm256_loadu_pd(&mat1->data[i][k]);
+                __m256d y = _mm256_loadu_pd(&copy->data[j][k]);
+                z = _mm256_fmadd_pd(x, y, z);
+
+                x = _mm256_loadu_pd(&mat1->data[i][k+4]);
+                y = _mm256_loadu_pd(&copy->data[j][k+4]);
+                z = _mm256_fmadd_pd(x, y, z);
+
+                x = _mm256_loadu_pd(&mat1->data[i][k+8]);
+                y = _mm256_loadu_pd(&copy->data[j][k+8]);
+                z = _mm256_fmadd_pd(x, y, z);
+
+                x = _mm256_loadu_pd(&mat1->data[i][k+12]);
+                y = _mm256_loadu_pd(&copy->data[j][k+12]);
+                z = _mm256_fmadd_pd(x, y, z);
+
+                _mm256_storeu_pd(p,z);
+            }
+            result->data[i][j] = result->data[i][j] + p[0] + p[1] + p[2] + p[3];
+            //printf("%f\n", result->data[i][j]);
+        }
+    }
+
+    //#pragma omp parallel for if((copy->cols - ((copy->cols / 16) * 16))*copy->rows > 100000)
+    for (int i = 0; i < mat1->rows; i++) {
+        for (int j = 0; j < copy->rows; j++) {
+            int sum = 0;
+            for (int k = copy->cols - (copy->cols % 16); k < copy->cols; k++) {
+                sum += mat1->data[i][k] * copy->data[j][k];
+            }
+            result->data[i][j] = sum;
+            //printf("%f\n", result->data[i][j]);
+        }
+    }
+
+    deallocate_matrix(copy);
+    return 0;
 }
 
 /*
