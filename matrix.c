@@ -300,6 +300,9 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     matrix *copy = NULL;
     allocate_matrix(&copy, mat2->cols, mat2->rows);
 
+
+    //The following until line 411 is just an unrolled loop that transposes mat2
+    //into copy. The outer loop is unrolled 8x, and the inner loops 4x
     #pragma omp parallel for if(matrix2Cols * matrix2Rows > 100000)
     for (int i = 0; i < (matrix2Cols / 8) * 8; i += 8) {
         for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
@@ -407,7 +410,9 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
     }
 
-    //#pragma omp parallel for if(matrix1Cols * matrix2Rows > 100000)
+
+    //The following until line until 443 is an unrolled SIMD loop that does the matrix multiplication
+    #pragma omp parallel for if(matrix1Cols * matrix2Rows > 100000)
     for (int i = 0; i < mat1->rows; i++) {
         for (int j = 0; j < copy->rows; j++) {
             double p[4] = {0,0,0,0};
@@ -436,7 +441,9 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
         }
     }
 
-    //#pragma omp parallel for if((copy->cols - ((copy->cols / 16) * 16))*copy->rows > 100000)
+    //This is the tail case of the above, your actual matrix multiplication
+    //for a small matrix will more than likely take place here 
+    #pragma omp parallel for if((copy->cols - ((copy->cols / 16) * 16))*copy->rows > 100000)
     for (int i = 0; i < mat1->rows; i++) {
         for (int j = 0; j < copy->rows; j++) {
             int sum = 0;
