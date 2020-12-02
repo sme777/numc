@@ -66,6 +66,20 @@ class TestAdd(TestCase):
         self.assertTrue(is_correct)
         print_speedup(speed_up)
 
+    def test_large_add_iterative(self):
+        speed_ups = []
+        for i in range(15):
+            dp_mat1, nc_mat1 = rand_dp_nc_matrix(5000, 5000, seed=0)
+            dp_mat2, nc_mat2 = rand_dp_nc_matrix(5000, 5000, seed=1)
+            is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "add")
+            speed_ups.append(speed_up)
+            self.assertTrue(is_correct)
+        speed_ups = np.array([speed_ups])
+        print('The fastest was ' + str(np.max(speed_ups)))
+        print('The slowest was ' + str(np.min(speed_ups)))
+        print('The mean was ' + str(np.mean(speed_ups)))
+    
+
 class TestSub(TestCase):
     def test_small_sub(self):
         # TODO: YOUR CODE HERE
@@ -133,6 +147,19 @@ class TestSub(TestCase):
         self.assertTrue(is_correct)
         print_speedup(speed_up)
 
+    def test_large_sub_iterative(self):
+        speed_ups = []
+        for i in range(15):
+            dp_mat1, nc_mat1 = rand_dp_nc_matrix(5000, 5000, seed=0)
+            dp_mat2, nc_mat2 = rand_dp_nc_matrix(5000, 5000, seed=1)
+            is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "sub")
+            speed_ups.append(speed_up)
+            self.assertTrue(is_correct)
+        speed_ups = np.array([speed_ups])
+        print('The fastest was ' + str(np.max(speed_ups)))
+        print('The slowest was ' + str(np.min(speed_ups)))
+        print('The mean was ' + str(np.mean(speed_ups)))
+
 class TestAbs(TestCase):
     def test_small_abs(self):
         # TODO: YOUR CODE HERE
@@ -190,6 +217,19 @@ class TestAbs(TestCase):
         is_correct, speed_up = compute([dp_mat], [nc_mat], "abs")
         self.assertTrue(is_correct)
         print_speedup(speed_up)
+
+    def test_large_abs_iterative(self):
+        speed_ups = []
+        for i in range(15):
+            dp_mat1, nc_mat1 = rand_dp_nc_matrix(5000, 5000, seed=0)
+            is_correct, speed_up = compute([dp_mat1], [nc_mat1], "abs")
+            speed_ups.append(speed_up)
+            self.assertTrue(is_correct)
+        speed_ups = np.array([speed_ups])
+        print('The fastest was ' + str(np.max(speed_ups)))
+        print('The slowest was ' + str(np.min(speed_ups)))
+        print('The mean was ' + str(np.mean(speed_ups)))
+    
 
 class TestNeg(TestCase):
     def test_small_neg(self):
@@ -255,6 +295,19 @@ class TestNeg(TestCase):
         is_correct, speed_up = compute([dp_mat], [nc_mat], "neg")
         self.assertTrue(is_correct)
         print_speedup(speed_up)
+
+    def test_large_neg_iterative(self):
+        speed_ups = []
+        for i in range(15):
+            dp_mat1, nc_mat1 = rand_dp_nc_matrix(5000, 5000, seed=0)
+            is_correct, speed_up = compute([dp_mat1], [nc_mat1], "neg")
+            speed_ups.append(speed_up)
+            self.assertTrue(is_correct)
+        speed_ups = np.array([speed_ups])
+        print('The fastest was ' + str(np.max(speed_ups)))
+        print('The slowest was ' + str(np.min(speed_ups)))
+        print('The mean was ' + str(np.mean(speed_ups)))
+    
 
 class TestMul(TestCase):
     def test_small_mul(self):

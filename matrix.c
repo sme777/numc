@@ -227,11 +227,14 @@ int add_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
     
     #pragma omp parallel for if(rowMat1 * colMat1 > 100000)
-    for (int i = 0; i < result->rows; i++) {
-        for (int j = 0; j < result->cols; j++) {
-            result->data[i][j] = mat1->data[i][j] + mat2->data[i][j];
-        }
+    for (int i = 0; i < result->rows * result->cols; i ++) {
+        result->data[0][i] = mat1->data[0][i] + mat2->data[0][i];
     }
+    // for (int i = 0; i < result->rows; i++) {
+    //     for (int j = 0; j < result->cols; j++) {
+    //         result->data[i][j] = mat1->data[i][j] + mat2->data[i][j];
+    //     }
+    // }
 
     return 0;
 
@@ -257,11 +260,14 @@ int sub_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     }
 
     #pragma omp parallel for if(rowMat1 * colMat1 > 100000)
-    for (int i = 0; i < result->rows; i++) {
-        for (int j = 0; j < result->cols; j++) {
-            result->data[i][j] = mat1->data[i][j] - mat2->data[i][j];
-        }
+    for (int i = 0; i < result->rows * result->cols; i ++) {
+        result->data[0][i] = mat1->data[0][i] - mat2->data[0][i];
     }
+    // for (int i = 0; i < result->rows; i++) {
+    //     for (int j = 0; j < result->cols; j++) {
+    //         result->data[i][j] = mat1->data[i][j] - mat2->data[i][j];
+    //     }
+    // }
     return 0;
 }
 
@@ -301,7 +307,7 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     allocate_matrix(&copy, mat2->cols, mat2->rows);
 
     #pragma omp parallel for if(matrix2Cols * matrix2Rows > 100000)
-    for (int i = 0; i < (matrix2Cols / 8) * 8 ; i += 8) {
+    for (int i = 0; i < (matrix2Cols / 4) * 4 ; i += 4) {
         for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
             set(copy, i, j, mat2->data[j][i]);
             set(copy, i, j+1, mat2->data[j+1][i]);
@@ -344,54 +350,11 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
         for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
             set(copy, i+3, j, mat2->data[j][i+3]);
+            }
         }
+    
 
-        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
-            set(copy, i+4, j, mat2->data[j][i+4]);
-            set(copy, i+4, j+1, mat2->data[j+1][i+4]);
-            set(copy, i+4, j+2, mat2->data[j+2][i+4]);
-            set(copy, i+4, j+3, mat2->data[j+3][i+4]);
-        }
-
-        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
-            set(copy, i+4, j, mat2->data[j][i+4]);
-        }
-
-        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
-            set(copy, i+5, j, mat2->data[j][i+5]);
-            set(copy, i+5, j+1, mat2->data[j+1][i+5]);
-            set(copy, i+5, j+2, mat2->data[j+2][i+5]);
-            set(copy, i+5, j+3, mat2->data[j+3][i+5]);
-        }
-
-        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
-            set(copy, i+5, j, mat2->data[j][i+5]);
-        }
-
-        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
-            set(copy, i+6, j, mat2->data[j][i+6]);
-            set(copy, i+6, j+1, mat2->data[j+1][i+6]);
-            set(copy, i+6, j+2, mat2->data[j+2][i+6]);
-            set(copy, i+6, j+3, mat2->data[j+3][i+6]);
-        }
-
-        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
-            set(copy, i+6, j, mat2->data[j][i+6]);
-        }
-
-        for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
-            set(copy, i+7, j, mat2->data[j][i+7]);
-            set(copy, i+7, j+1, mat2->data[j+1][i+7]);
-            set(copy, i+7, j+2, mat2->data[j+2][i+7]);
-            set(copy, i+7, j+3, mat2->data[j+3][i+7]);
-        }
-
-        for (int j = matrix2Rows - (matrix2Rows % 4); j < matrix2Rows; j++) {
-            set(copy, i+7, j, mat2->data[j][i+7]);
-        }
-    }
-
-    #pragma omp parallel for if((matrix2Cols - ((matrix2Cols / 8) * 8)) * matrix2Rows > 100000)    
+    #pragma omp parallel for if((matrix2Cols - ((matrix2Cols / 4) * 4)) * matrix2Rows > 100000)    
     for (int i = matrix2Cols - (matrix2Cols % 8); i < matrix2Cols; i++) {
         for (int j = 0; j < (matrix2Rows / 4) * 4; j += 4) {
             set(copy, i, j, mat2->data[j][i]);
@@ -466,7 +429,6 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
             } else {
                 set(result,i,j,0);
             }
-    		
     	}
     }
 
@@ -474,43 +436,45 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
         return 0;
     }
 
+    if (pow == 1) {
+        result = mat;
+        return 0;
+    }
+
+    matrix *product = NULL;
+    allocate_matrix(&product, rowMatRes, colMatRes);
+
     matrix *mat_copy = NULL;
-    allocate_matrix(&mat_copy, mat->rows, mat->cols);
-    for (i = 0; i < mat->rows; i++) {
-		for (j = 0; j < mat->cols; j++) {
-			set(mat_copy, i, j, mat->data[i][j]);
+    allocate_matrix(&mat_copy, rowMatRes, colMatRes);
+    for (i = 0; i < result->rows; i++) {
+		    for (j = 0; j < result->cols; j++) {
+			    mat_copy->data[i][j] = mat->data[i][j];
 		}
 	}
 
-    while (pow > 0) {
+
+    while (pow > 1) {
         if (pow % 2 != 0) {
-            matrix *copy = NULL;
-            allocate_matrix(&copy, result->rows, result->cols);
-            int i, j;
-	        for (i = 0; i < result->rows; i++) {
-		        for (j = 0; j < result->cols; j++) {
-			        set(copy, i, j, result->data[i][j]);
-		        }
-	        }
-            mul_matrix(result, copy, mat_copy);
-            pow = pow - 1;
-            deallocate_matrix(copy);
+            mul_matrix(product, result, mat_copy);
+            mat = result;
+            result = product;
+            product = mat;
+            pow = pow/2;
         } else {
-            matrix *copy = NULL;
-            allocate_matrix(&copy, result->rows, result->cols);
-            int i, j;
-	        for (i = 0; i < mat->rows; i++) {
-		        for (j = 0; j < mat->cols; j++) {
-			        set(copy, i, j, mat_copy->data[i][j]);
-		        }
-	        }
-            mul_matrix(mat_copy, copy, copy);          
-            pow = pow / 2;
-            deallocate_matrix(copy);
+            mul_matrix(result, mat_copy ,result);
+            mul_matrix(product, mat_copy, mat_copy);
+            mat = mat_copy;
+            mat_copy = product;
+            product = mat_copy;
+            pow = (pow-1)/2;
         }
     }
 
+    mul_matrix(result, mat_copy, result);
+
+    deallocate_matrix(product);
     deallocate_matrix(mat_copy);
+
     return 0;
 }
 
@@ -531,11 +495,9 @@ int neg_matrix(matrix *result, matrix *mat) {
     }
 
      
-    #pragma omp parallel for if(originalRow * originalCol >= 100000)
-    for (int i = 0; i < result->rows; i++) {
-        for (int j = 0; j < result->cols; j++) {
-            result->data[i][j] = -mat->data[i][j];
-        }
+    #pragma omp parallel for if(originalRow * originalCol > 100000)
+    for (int i = 0; i < result->rows * result->cols; i++) {
+        result->data[0][i] = -mat->data[0][i];
     }
 
     
@@ -558,18 +520,17 @@ int abs_matrix(matrix *result, matrix *mat) {
         PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
         return -1;
     }
+    
+    #pragma omp parallel for if(originalRow * originalCol > 100000)
+    for (int i = 0; i < result->rows * result->cols; i++) {
+        if (mat->data[0][i] >= 0) {
+                result->data[0][i] = mat->data[0][i];
+            }else {
+                result->data[0][i] = -mat->data[0][i];
+            } 
+    }
 
-        #pragma omp parallel for if(originalRow * originalCol >= 100000)
-        for (int i = 0; i < result->rows; i++) {
-            for (int j = 0; j < result->cols; j++) {
-                double beforeAbs = mat->data[i][j];
-                if (beforeAbs >= 0) {
-                    result->data[i][j] = beforeAbs;
-                } else {
-                    result->data[i][j] = -beforeAbs;
-                }
-            }
-        }
+        
 
     return 0;
 
