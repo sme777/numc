@@ -414,23 +414,10 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
             set(result, i, j, 0);
             double p[4] = {0,0,0,0};
             __m256d z = _mm256_set1_pd(0);
-            for (int k = 0; k < (copy->cols / 16) * 16; k += 16) {
+            for (int k = 0; k < (copy->cols / 4) * 4; k += 4) {
                 __m256d x = _mm256_loadu_pd(&mat1->data[i][k]);
                 __m256d y = _mm256_loadu_pd(&copy->data[j][k]);
                 z = _mm256_fmadd_pd(x, y, z);
-
-                x = _mm256_loadu_pd(&mat1->data[i][k+4]);
-                y = _mm256_loadu_pd(&copy->data[j][k+4]);
-                z = _mm256_fmadd_pd(x, y, z);
-
-                x = _mm256_loadu_pd(&mat1->data[i][k+8]);
-                y = _mm256_loadu_pd(&copy->data[j][k+8]);
-                z = _mm256_fmadd_pd(x, y, z);
-
-                x = _mm256_loadu_pd(&mat1->data[i][k+12]);
-                y = _mm256_loadu_pd(&copy->data[j][k+12]);
-                z = _mm256_fmadd_pd(x, y, z);
-
             }
             _mm256_storeu_pd(p,z);
             result->data[i][j] += p[0] + p[1] + p[2] + p[3];
@@ -440,10 +427,10 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
     //This is the tail case of the above, your actual matrix multiplication
     //for a small matrix will more than likely take place here 
-    #pragma omp parallel for if((copy->cols - ((copy->cols / 16) * 16))*copy->rows > 100000)
+    #pragma omp parallel for if((copy->cols - ((copy->cols / 4) * 4))*copy->rows > 100000)
     for (int i = 0; i < mat1->rows; i++) {
         for (int j = 0; j < copy->rows; j++) {
-            for (int k = copy->cols - (copy->cols % 16); k < copy->cols; k++) {
+            for (int k = copy->cols - (copy->cols % 4); k < copy->cols; k++) {
                 result->data[i][j] += mat1->data[i][k] * copy->data[j][k];
             }
             //printf("%f\n", result->data[i][j]);

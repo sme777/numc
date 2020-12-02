@@ -1,6 +1,6 @@
 from utils import *
 from unittest import TestCase
-import numc as nc
+import numpy as np
 
 """
 For each operation, you should write tests to test  on matrices of different sizes.
@@ -273,25 +273,31 @@ class TestMul(TestCase):
         print_speedup(speed_up)
 
     def test_large_mul(self):
-        dp_mat1, nc_mat1 = rand_dp_nc_matrix(1000, 2000, seed=0)
-        dp_mat2, nc_mat2 = rand_dp_nc_matrix(2000, 3000, seed=1)
-        is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
-        self.assertTrue(is_correct)
-        print_speedup(speed_up)
+        speed_ups = []
+        for i in range(5):
+            dp_mat1, nc_mat1 = rand_dp_nc_matrix(1005, 1005, seed=0)
+            dp_mat2, nc_mat2 = rand_dp_nc_matrix(1005, 1111, seed=1)
+            is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+            self.assertTrue(is_correct)
+            speed_ups.append(speed_up)
+        speed_ups = np.array([speed_ups])
+        print('The fastest was ' + str(np.max(speed_ups)))
+        print('The slowest was ' + str(np.min(speed_ups)))
+        print('The mean was ' + str(np.mean(speed_ups)))
 
-    def test_large_mul1(self):
-        dp_mat1, nc_mat1 = rand_dp_nc_matrix(3000, 5000, seed=0)
-        dp_mat2, nc_mat2 = rand_dp_nc_matrix(5000, 2000, seed=1)
-        is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
-        self.assertTrue(is_correct)
-        print_speedup(speed_up)
+    # def test_large_mul1(self):
+    #     dp_mat1, nc_mat1 = rand_dp_nc_matrix(3000, 5000, seed=0)
+    #     dp_mat2, nc_mat2 = rand_dp_nc_matrix(5000, 2000, seed=1)
+    #     is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+    #     self.assertTrue(is_correct)
+    #     print_speedup(speed_up)
 
-    def test_large_mul2(self):
-        dp_mat1, nc_mat1 = rand_dp_nc_matrix(10000, 8000, seed=0)
-        dp_mat2, nc_mat2 = rand_dp_nc_matrix(8000, 11000, seed=1)
-        is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
-        self.assertTrue(is_correct)
-        print_speedup(speed_up)
+    # def test_large_mul2(self):
+    #     dp_mat1, nc_mat1 = rand_dp_nc_matrix(10000, 8000, seed=0)
+    #     dp_mat2, nc_mat2 = rand_dp_nc_matrix(8000, 11000, seed=1)
+    #     is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+    #     self.assertTrue(is_correct)
+    #     print_speedup(speed_up)
     
 
 class TestPow(TestCase):
