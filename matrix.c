@@ -375,14 +375,14 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     for (int i = 0; i < mat1->rows; i++) {
         for (int j = 0; j < copy->rows; j++) {
             set(result, i, j, 0);
-            double p[4] = {0,0,0,0};
+            double *p;
             __m256d z = _mm256_set1_pd(0);
             for (int k = 0; k < (copy->cols / 4) * 4; k += 4) {
                 __m256d x = _mm256_loadu_pd(&mat1->data[i][k]);
                 __m256d y = _mm256_loadu_pd(&copy->data[j][k]);
                 z = _mm256_fmadd_pd(x, y, z);
             }
-            _mm256_storeu_pd(p,z);
+            p = (double *) &z;
             result->data[i][j] += p[0] + p[1] + p[2] + p[3];
             //printf("%f\n", result->data[i][j]);
         }
@@ -404,7 +404,6 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     return 0;
 }
 
-
 /*
  * Store the result of raising mat to the (pow)th power to `result`.
  * Return 0 upon success and a nonzero value upon failure.
@@ -418,6 +417,7 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
         PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
         return -1;
     }
+    int res_swap = 0;
     int colMatRes = result->cols;
     int rowMatRes = result->rows;
     int i, j;
@@ -437,12 +437,19 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     }
 
     if (pow == 1) {
-        result = mat;
-        return 0;
+        for (i = 0; i < result->rows; i++) {
+		    for (j = 0; j < result->cols; j++) {
+			    result->data[i][j] = mat->data[i][j];
+		    }
+	    }
+        return 0;   
     }
 
-    matrix *product = NULL;
-    allocate_matrix(&product, rowMatRes, colMatRes);
+    matrix *mat_copy_temp = NULL;
+    allocate_matrix(&mat_copy_temp, rowMatRes, colMatRes);
+
+    matrix *result_temp = NULL;
+    allocate_matrix(&result_temp, rowMatRes, colMatRes);
 
     matrix *mat_copy = NULL;
     allocate_matrix(&mat_copy, rowMatRes, colMatRes);
@@ -452,29 +459,47 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
 		}
 	}
 
+    matrix * temp_pointer;
 
     while (pow > 1) {
-        if (pow % 2 != 0) {
-            mul_matrix(product, result, mat_copy);
-            mat = result;
-            result = product;
-            product = mat;
-            pow = pow/2;
+        if (pow % 2 == 0) {
+            temp_pointer = mat_copy;
+            mat_copy = mat_copy_temp;
+            mat_copy_temp = temp_pointer;
+            mul_matrix(mat_copy, mat_copy_temp, mat_copy_temp);
+            pow = pow / 2;
+
         } else {
-            mul_matrix(result, mat_copy ,result);
-            mul_matrix(product, mat_copy, mat_copy);
-            mat = mat_copy;
-            mat_copy = product;
-            product = mat_copy;
-            pow = (pow-1)/2;
+            temp_pointer = result;
+            result = result_temp;
+            result_temp = temp_pointer;
+            mul_matrix(result, result_temp, mat_copy);
+            res_swap++;
+
+            temp_pointer = mat_copy;
+            mat_copy = mat_copy_temp;
+            mat_copy_temp = temp_pointer;
+            mul_matrix(mat_copy, mat_copy_temp, mat_copy_temp);
+            pow = (pow - 1) / 2;
         }
     }
 
-    mul_matrix(result, mat_copy, result);
+    temp_pointer = result;
+    result = result_temp;
+    result_temp = temp_pointer;
+    mul_matrix(result, result_temp, mat_copy);
 
-    deallocate_matrix(product);
+    if (res_swap % 2 == 0) {
+        for (i = 0; i < result->rows; i++) {
+		    for (j = 0; j < result->cols; j++) {
+			    result_temp->data[i][j] = result->data[i][j];
+		    }
+	    }
+        result = result_temp;
+    }
+    deallocate_matrix(mat_copy_temp);
+    deallocate_matrix(result_temp);
     deallocate_matrix(mat_copy);
-
     return 0;
 }
 
