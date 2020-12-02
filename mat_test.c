@@ -210,6 +210,11 @@ void pow_test(void) {
     set(mat, 0, 1, 1);
     set(mat, 1, 0, 1);
     set(mat, 1, 1, 0);
+    pow_matrix(result, mat, 1);
+    CU_ASSERT_EQUAL(get(result, 0, 0), 1);
+    CU_ASSERT_EQUAL(get(result, 0, 1), 1);
+    CU_ASSERT_EQUAL(get(result, 1, 0), 1);
+    CU_ASSERT_EQUAL(get(result, 1, 1), 0);
     pow_matrix(result, mat, 3);
     CU_ASSERT_EQUAL(get(result, 0, 0), 3);
     CU_ASSERT_EQUAL(get(result, 0, 1), 2);
@@ -230,12 +235,6 @@ void pow_test(void) {
     CU_ASSERT_EQUAL(get(result, 0, 1), 5);
     CU_ASSERT_EQUAL(get(result, 1, 0), 5);
     CU_ASSERT_EQUAL(get(result, 1, 1), 3);
-    pow_matrix(result, mat, 8);
-    CU_ASSERT_EQUAL(get(result, 0, 0), 34);
-    CU_ASSERT_EQUAL(get(result, 0, 1), 21);
-    CU_ASSERT_EQUAL(get(result, 1, 0), 21);
-    CU_ASSERT_EQUAL(get(result, 1, 1), 13);
-    deallocate_matrix(result);
     deallocate_matrix(mat);
 }
 
