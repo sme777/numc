@@ -310,13 +310,13 @@ class TestNeg(TestCase):
     
 
 class TestMul(TestCase):
-    def test_small_mul(self):
-        # TODO: YOUR CODE HERE
-        dp_mat1, nc_mat1 = rand_dp_nc_matrix(2, 3, seed=0)
-        dp_mat2, nc_mat2 = rand_dp_nc_matrix(3, 4, seed=1)
-        is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
-        self.assertTrue(is_correct)
-        print_speedup(speed_up)
+    # def test_small_mul(self):
+    #     # TODO: YOUR CODE HERE
+    #     dp_mat1, nc_mat1 = rand_dp_nc_matrix(2, 3, seed=0)
+    #     dp_mat2, nc_mat2 = rand_dp_nc_matrix(3, 4, seed=1)
+    #     is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+    #     self.assertTrue(is_correct)
+    #     print_speedup(speed_up)
         
     def test_medium_mul(self):
         dp_mat1, nc_mat1 = rand_dp_nc_matrix(105, 205, seed=0)
@@ -324,19 +324,62 @@ class TestMul(TestCase):
         is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
         self.assertTrue(is_correct)
         print_speedup(speed_up)
+    # def test_verylarge_iterative(self):
+    #     print("\nMatrices tested are 5000x5000")
+    #     speed_ups = []
+    #     for i in range(5):
+    #         dp_mat1, nc_mat1 = rand_dp_nc_matrix(5005, 5005, seed=0)
+    #         dp_mat2, nc_mat2 = rand_dp_nc_matrix(5005, 5111, seed=1)
+    #         is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+    #         self.assertTrue(is_correct)
+    #         speed_ups.append(speed_up)
+    #         print("done")
+    #     speed_ups = np.array([speed_ups])
+    #     print('The fastest was ' + str(np.max(speed_ups)))
+    #     print('The slowest was ' + str(np.min(speed_ups)))
+    #     print('The mean was ' + str(np.mean(speed_ups)))
 
-    def test_large_mul(self):
-        speed_ups = []
-        for i in range(5):
-            dp_mat1, nc_mat1 = rand_dp_nc_matrix(1005, 1005, seed=0)
-            dp_mat2, nc_mat2 = rand_dp_nc_matrix(1005, 1111, seed=1)
-            is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
-            self.assertTrue(is_correct)
-            speed_ups.append(speed_up)
-        speed_ups = np.array([speed_ups])
-        print('The fastest was ' + str(np.max(speed_ups)))
-        print('The slowest was ' + str(np.min(speed_ups)))
-        print('The mean was ' + str(np.mean(speed_ups)))
+    # def test_large_iterative(self):
+    #     print("\nMatrices tested are 1000x1000")
+    #     speed_ups = []
+    #     for i in range(5):
+    #         dp_mat1, nc_mat1 = rand_dp_nc_matrix(1005, 1005, seed=0)
+    #         dp_mat2, nc_mat2 = rand_dp_nc_matrix(1005, 1111, seed=1)
+    #         is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+    #         self.assertTrue(is_correct)
+    #         speed_ups.append(speed_up)
+    #     speed_ups = np.array([speed_ups])
+    #     print('The fastest was ' + str(np.max(speed_ups)))
+    #     print('The slowest was ' + str(np.min(speed_ups)))
+    #     print('The mean was ' + str(np.mean(speed_ups)))
+    
+    # def test_medium_iterative(self):
+    #     print("\nMatrices tested are 500x500")
+    #     speed_ups = []
+    #     for i in range(5):
+    #         dp_mat1, nc_mat1 = rand_dp_nc_matrix(500, 505, seed=0)
+    #         dp_mat2, nc_mat2 = rand_dp_nc_matrix(505, 457, seed=1)
+    #         is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+    #         self.assertTrue(is_correct)
+    #         speed_ups.append(speed_up)
+    #     speed_ups = np.array([speed_ups])
+    #     print('The fastest was ' + str(np.max(speed_ups)))
+    #     print('The slowest was ' + str(np.min(speed_ups)))
+    #     print('The mean was ' + str(np.mean(speed_ups)))
+
+    # def test_small_iterative(self):
+    #     print("\nMatrices tested are 100x100")
+    #     speed_ups = []
+    #     for i in range(5):
+    #         dp_mat1, nc_mat1 = rand_dp_nc_matrix(100, 100, seed=0)
+    #         dp_mat2, nc_mat2 = rand_dp_nc_matrix(100, 100, seed=1)
+    #         is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+    #         self.assertTrue(is_correct)
+    #         speed_ups.append(speed_up)
+    #     speed_ups = np.array([speed_ups])
+    #     print('The fastest was ' + str(np.max(speed_ups)))
+    #     print('The slowest was ' + str(np.min(speed_ups)))
+    #     print('The mean was ' + str(np.mean(speed_ups)))
 
     # def test_large_mul1(self):
     #     dp_mat1, nc_mat1 = rand_dp_nc_matrix(3000, 5000, seed=0)
