@@ -328,13 +328,13 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
         return -1;
     }
 
-    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 20000)
+    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 25000)
     for (int i = 0; i < matrixResCols * matrixResRows; i++) {
         result->data[0][i] = 0;
     }
 
 
-    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 20000)
+    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 25000)
     for (int i = 0; i < matrix1Rows; i++) {
         for (int j = 0; j < matrix1Cols; j++) {
             for (int w = 0; w < matrix2Cols; w++) {
