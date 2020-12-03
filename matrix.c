@@ -347,20 +347,64 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
 
     double **copyData = copy->data;
 
-    #pragma omp parallel for if(matrix2Cols * matrix2Rows > 10000)
-    for (int i = 0; i < matrix2Cols; i ++) {
-        double * currCopyRow = copyData[i];
-        for (int j = 0; j < matrix2Rows; j ++) {
-            currCopyRow[j] = mat2Data[j][i];
-        }  
+    double *p1;
+
+    #pragma omp parallel for if(matrix2Rows * matrix2Cols > 30000)
+    for (int i = 0; i < (matrix2Rows / 16) * 16; i++) {
+        for (int j = 0; j < (matrix2Cols / 16) * 16; j+=16) {
+            __m256d mat2DataBlock = _mm256_loadu_pd(&mat2Data[i][j]);
+            p1 = (double *) &mat2DataBlock;
+            copyData[j][i] = p1[0];
+            copyData[j+1][i] = p1[1];
+            copyData[j+2][i] = p1[2];
+            copyData[j+3][i] = p1[3];
+
+            mat2DataBlock = _mm256_loadu_pd(&mat2Data[i][j+4]);
+            p1 = (double *) &mat2DataBlock;
+            copyData[j+4][i] = p1[0];
+            copyData[j+1+4][i] = p1[1];
+            copyData[j+2+4][i] = p1[2];
+            copyData[j+3+4][i] = p1[3];
+
+            mat2DataBlock = _mm256_loadu_pd(&mat2Data[i][j+8]);
+            p1 = (double *) &mat2DataBlock;
+            copyData[j+8][i] = p1[0];
+            copyData[j+1+8][i] = p1[1];
+            copyData[j+2+8][i] = p1[2];
+            copyData[j+3+8][i] = p1[3];
+
+            mat2DataBlock = _mm256_loadu_pd(&mat2Data[i][j+12]);
+            p1 = (double *) &mat2DataBlock;
+            copyData[j+12][i] = p1[0];
+            copyData[j+1+12][i] = p1[1];
+            copyData[j+2+12][i] = p1[2];
+            copyData[j+3+12][i] = p1[3];
+        }
+    }
+
+    #pragma omp parallel for if(matrix2Cols > 30000)
+    for (int i = matrix2Rows - (matrix2Rows % 16); i < matrix2Rows; i++) {
+        for (int j = 0; j < matrix2Cols; j ++) {
+            copyData[j][i] = mat2Data[i][j];
+        }
+    }
+
+    #pragma omp parallel for if(matrix2Rows > 30000)
+    for (int i = 0; i < (matrix2Rows / 16) * 16; i++) {
+        for (int j = matrix2Cols - (matrix2Cols % 16); j < matrix2Cols; j++) {
+            copyData[j][i] = mat2Data[i][j];
+        }
     }
 
     //The following until line until 443 is an unrolled SIMD loop that does the matrix multiplication
-    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 100000)
+    double *p;
+
+    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 30000)
     for (int i = 0; i < mat1->rows; i++) {
+        double * ptr = mat1Data[i];
         for (int j = 0; j < matrixCopyRows; j++) {
+            double * ptrc = copyData[j];
             resData[i][j] = 0;
-            double *p;
             __m256d z = _mm256_set1_pd(0);
             for (int k = 0; k < (matrixCopyCols / 16) * 16; k += 16) {
                 __m256d x = _mm256_loadu_pd(&mat1Data[i][k]);
@@ -379,19 +423,10 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
                 y = _mm256_loadu_pd(&copyData[j][k+12]);
                 z = _mm256_fmadd_pd(x, y, z);
             }
+
             p = (double *) &z;
             resData[i][j] += p[0] + p[1] + p[2] + p[3];
-            //printf("%f\n", resData[i][j]);
-        }
-    }
 
-    //This is the tail case of the above, your actual matrix multiplication
-    //for a small matrix will more than likely take place here 
-    #pragma omp parallel for if((matrixCopyCols - (matrixCopyCols % 16))*matrixCopyRows > 100000)
-    for (int i = 0; i < mat1->rows; i++) {
-        for (int j = 0; j < matrixCopyRows; j++) {
-            double * ptr = mat1Data[i];
-            double * ptrc = copyData[j];
             for (int k = matrixCopyCols - (matrixCopyCols % 16); k < matrixCopyCols; k++) {
                 resData[i][j] += ptr[k] * ptrc[k];
             }
@@ -422,7 +457,7 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
 
     double **resData = result->data;
 
-    #pragma omp parallel for if(rowMatRes * colMatRes > 1000)
+    #pragma omp parallel for if(rowMatRes * colMatRes > 20000)
     for (int i = 0; i < rowMatRes; i++) {
         double * currRow = resData[i];
     	for (int j = 0; j < colMatRes; j++) {
@@ -442,7 +477,7 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     double * matRow = mat->data[0];
 
     if (pow == 1) {
-        #pragma omp parallel for if(rowMatRes * colMatRes > 1000)
+        #pragma omp parallel for if(rowMatRes * colMatRes > 20000)
         for (int i = 0; i < rowMatRes * colMatRes; i++) {
             resDataRow[i] = matRow[i];
         }
@@ -459,7 +494,7 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     allocate_matrix(&mat_copy, rowMatRes, colMatRes);
     double * matCopyRow = mat_copy->data[0];
 
-    #pragma omp parallel for if(rowMatRes * colMatRes > 1000)
+    #pragma omp parallel for if(rowMatRes * colMatRes > 20000)
     for (int i = 0; i < rowMatRes * colMatRes; i++) {
         matCopyRow[i] = matRow[i];
     }
@@ -498,7 +533,7 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     double * currResRow = result->data[0];
 
     if (res_swap % 2 == 0) {
-        #pragma omp parallel for if(rowMatRes * colMatRes > 1000)
+        #pragma omp parallel for if(rowMatRes * colMatRes > 20000)
         for (int i = 0; i < rowMatRes * colMatRes; i++) {
             currResTempRow[i] = currResRow[i];
         }
@@ -597,4 +632,3 @@ int abs_matrix(matrix *result, matrix *mat) {
     }
     return 0;
 }
-

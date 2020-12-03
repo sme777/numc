@@ -1,6 +1,7 @@
 from utils import *
 from unittest import TestCase
 import numpy as np
+import random
 
 """
 For each operation, you should write tests to test  on matrices of different sizes.
@@ -318,12 +319,12 @@ class TestMul(TestCase):
     #     self.assertTrue(is_correct)
     #     print_speedup(speed_up)
         
-    def test_medium_mul(self):
-        dp_mat1, nc_mat1 = rand_dp_nc_matrix(105, 205, seed=0)
-        dp_mat2, nc_mat2 = rand_dp_nc_matrix(205, 300, seed=1)
-        is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
-        self.assertTrue(is_correct)
-        print_speedup(speed_up)
+    # def test_medium_mul(self):
+    #     dp_mat1, nc_mat1 = rand_dp_nc_matrix(16, 16, seed=0)
+    #     dp_mat2, nc_mat2 = rand_dp_nc_matrix(16, 16, seed=1)
+    #     is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+    #     self.assertTrue(is_correct)
+    #     print_speedup(speed_up)
     # def test_verylarge_iterative(self):
     #     print("\nMatrices tested are 5000x5000")
     #     speed_ups = []
@@ -356,7 +357,7 @@ class TestMul(TestCase):
     # def test_medium_iterative(self):
     #     print("\nMatrices tested are 500x500")
     #     speed_ups = []
-    #     for i in range(5):
+    #     for i in range(10):
     #         dp_mat1, nc_mat1 = rand_dp_nc_matrix(500, 505, seed=0)
     #         dp_mat2, nc_mat2 = rand_dp_nc_matrix(505, 457, seed=1)
     #         is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
@@ -380,34 +381,37 @@ class TestMul(TestCase):
     #     print('The fastest was ' + str(np.max(speed_ups)))
     #     print('The slowest was ' + str(np.min(speed_ups)))
     #     print('The mean was ' + str(np.mean(speed_ups)))
+    
+    def test_random(self):
+        print("\nMatrices tested are random")
+        speed_ups = []
+        random.seed(1)
+        for i in range(20):
+            dimensions = random.randint(500,2000)
+            dp_mat1, nc_mat1 = rand_dp_nc_matrix(dimensions, dimensions, seed=0)
+            dp_mat2, nc_mat2 = rand_dp_nc_matrix(dimensions, dimensions, seed=1)
+            is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
+            self.assertTrue(is_correct)
+            speed_ups.append(speed_up)
+        speed_ups = np.array([speed_ups])
+        print('The fastest was ' + str(np.max(speed_ups)))
+        print('The slowest was ' + str(np.min(speed_ups)))
+        print('The mean was ' + str(np.mean(speed_ups)))
 
-    # def test_large_mul1(self):
-    #     dp_mat1, nc_mat1 = rand_dp_nc_matrix(3000, 5000, seed=0)
-    #     dp_mat2, nc_mat2 = rand_dp_nc_matrix(5000, 2000, seed=1)
-    #     is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
-    #     self.assertTrue(is_correct)
-    #     print_speedup(speed_up)
-
-    # def test_large_mul2(self):
-    #     dp_mat1, nc_mat1 = rand_dp_nc_matrix(10000, 8000, seed=0)
-    #     dp_mat2, nc_mat2 = rand_dp_nc_matrix(8000, 11000, seed=1)
-    #     is_correct, speed_up = compute([dp_mat1, dp_mat2], [nc_mat1, nc_mat2], "mul")
-    #     self.assertTrue(is_correct)
-    #     print_speedup(speed_up)
     
 
 class TestPow(TestCase):
-    def test_small_pow(self):
-        # TODO: YOUR CODE HERE
-        dp_mat, nc_mat = rand_dp_nc_matrix(2, 2, seed=0)
-        is_correct, speed_up = compute([dp_mat, 3], [nc_mat, 3], "pow")
-        self.assertTrue(is_correct)
-        print_speedup(speed_up)
+    # def test_small_pow(self):
+    #     # TODO: YOUR CODE HERE
+    #     dp_mat, nc_mat = rand_dp_nc_matrix(2, 2, seed=0)
+    #     is_correct, speed_up = compute([dp_mat, 3], [nc_mat, 3], "pow")
+    #     self.assertTrue(is_correct)
+    #     print_speedup(speed_up)
 
     def test_medium_pow(self):
         # TODO: YOUR CODE HERE
         speed_ups = []
-        for i in range(5):
+        for i in range(10):
             dp_mat, nc_mat = rand_dp_nc_matrix(100, 100, seed=0)
             is_correct, speed_up = compute([dp_mat, 1000], [nc_mat, 1000], "pow")
             self.assertTrue(is_correct)
@@ -417,24 +421,24 @@ class TestPow(TestCase):
         print('The slowest was ' + str(np.min(speed_ups)))
         print('The mean was ' + str(np.mean(speed_ups)))
 
-    def test_medium_pow2(self):
-        # TODO: YOUR CODE HERE
-        speed_ups = []
-        for i in range(5):
-            dp_mat, nc_mat = rand_dp_nc_matrix(256, 256, seed=0)
-            is_correct, speed_up = compute([dp_mat, 1000], [nc_mat, 1000], "pow")
-            self.assertTrue(is_correct)
-            speed_ups.append(speed_up)
-        speed_ups = np.array(speed_ups)
-        print('The fastest was ' + str(np.max(speed_ups)))
-        print('The slowest was ' + str(np.min(speed_ups)))
-        print('The mean was ' + str(np.mean(speed_ups)))
+    # def test_medium_pow2(self):
+    #     # TODO: YOUR CODE HERE
+    #     speed_ups = []
+    #     for i in range(5):
+    #         dp_mat, nc_mat = rand_dp_nc_matrix(256, 256, seed=0)
+    #         is_correct, speed_up = compute([dp_mat, 1000], [nc_mat, 1000], "pow")
+    #         self.assertTrue(is_correct)
+    #         speed_ups.append(speed_up)
+    #     speed_ups = np.array(speed_ups)
+    #     print('The fastest was ' + str(np.max(speed_ups)))
+    #     print('The slowest was ' + str(np.min(speed_ups)))
+    #     print('The mean was ' + str(np.mean(speed_ups)))
 
         
         
-    def test_large_pow(self):
-        # TODO: YOUR CODE HERE
-        pass
+    # def test_large_pow(self):
+    #     # TODO: YOUR CODE HERE
+    #     pass
 
 class TestGet(TestCase):
     def test_get(self):
