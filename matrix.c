@@ -346,6 +346,100 @@ int mul_matrix(matrix *result, matrix *mat1, matrix *mat2) {
     return 0;
 }
 
+int pow_mul(matrix *result, matrix *mat1, matrix *mat2) {
+    /* TODO: YOUR CODE HERE */
+    int matrix1Rows = mat1->rows;
+    int matrix1Cols = mat1->cols;
+
+    int matrix2Rows = mat2->rows;
+    int matrix2Cols = mat2->cols;
+
+    int matrixResRows = result->rows;
+    int matrixResCols = result->cols;
+
+    double **mat1Data = mat1->data;
+    double **mat2Data = mat2->data;
+    double **resData = result->data;
+
+    if (matrix1Cols != matrix2Rows || matrixResCols != matrix2Cols
+            || matrixResRows != matrix1Rows) {
+        return -1;
+    }
+
+    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 6000)
+    for (int i = 0; i < matrixResCols * matrixResRows; i++) {
+        result->data[0][i] = 0;
+    }
+
+
+    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 6000)
+    for (int i = 0; i < matrix1Rows; i++) {
+        for (int j = 0; j < matrix1Cols; j++) {
+            for (int w = 0; w < matrix2Cols; w++) {
+                resData[i][w] += mat1Data[i][j] * mat2Data[j][w];
+            }
+        }
+    }
+
+    return 0;
+}
+
+int pow_mul2(matrix *result, matrix *mat1, matrix *mat2) {
+    /* TODO: YOUR CODE HERE */
+    int matrix1Rows = mat1->rows;
+    int matrix1Cols = mat1->cols;
+
+    int matrix2Rows = mat2->rows;
+    int matrix2Cols = mat2->cols;
+
+    int matrixResRows = result->rows;
+    int matrixResCols = result->cols;
+
+    double **mat1Data = mat1->data;
+    double **mat2Data = mat2->data;
+    double **resData = result->data;
+
+    if (matrix1Cols != matrix2Rows || matrixResCols != matrix2Cols
+            || matrixResRows != matrix1Rows) {
+        return -1;
+    }
+
+    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 10000)
+    for (int i = 0; i < matrixResCols * matrixResRows; i++) {
+        result->data[0][i] = 0;
+    }
+
+
+    #pragma omp parallel for if(matrix1Rows * matrix2Cols > 10000)
+    for (int i = 0; i < matrix1Rows; i++) {
+        for (int j = 0; j < (matrix1Cols / 4) * 4; j+=4) {
+            for (int w = 0; w < matrix2Cols; w++) {
+                resData[i][w] += mat1Data[i][j] * mat2Data[j][w];
+            }
+
+            for (int w = 0; w < matrix2Cols; w++) {
+                resData[i][w] += mat1Data[i][j+1] * mat2Data[j+1][w];
+            }
+
+            for (int w = 0; w < matrix2Cols; w++) {
+                resData[i][w] += mat1Data[i][j+2] * mat2Data[j+2][w];
+            }
+
+            for (int w = 0; w < matrix2Cols; w++) {
+                resData[i][w] += mat1Data[i][j+3] * mat2Data[j+3][w];
+            }
+        }
+        for (int j = matrix1Cols - (matrix1Cols % 4); j < matrix1Cols; j++) {
+            for (int w = 0; w < matrix2Cols; w++) {
+                resData[i][w] += mat1Data[i][j] * mat2Data[j][w];
+            }
+        }
+
+    }
+
+    return 0;
+}
+
 
 
 /*
@@ -614,7 +708,7 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     }
 
     if (pow == 2) {
-        mul_matrix(result, mat, mat);
+        pow_mul(result, mat, mat);
         return 0;
     }
 
@@ -634,20 +728,30 @@ int pow_matrix(matrix *result, matrix *mat, int pow) {
     }
 
     matrix * temp_pointer;
+    int first_odd = 1;
 
     while (pow > 0) {
         if (pow % 2 != 0) {
-            temp_pointer = result;
-            result = result_temp;
-            result_temp = temp_pointer;
-            mul_matrix(result, result_temp, mat_copy);
-            res_swap++;
+
+            if (first_odd == 1) {
+                for (int i = 0; i < rowMatRes * colMatRes; i++) {
+                    resDataRow[i] = mat_copy->data[0][i];
+                }
+                first_odd = 0;
+            } else {
+                temp_pointer = result;
+                result = result_temp;
+                result_temp = temp_pointer;
+                pow_mul(result, result_temp, mat_copy);
+                res_swap++;
+            }
             pow--;
+
         } else {
             temp_pointer = mat_copy;
             mat_copy = mat_copy_temp;
             mat_copy_temp = temp_pointer;
-            mul_matrix(mat_copy, mat_copy_temp, mat_copy_temp);
+            pow_mul(mat_copy, mat_copy_temp, mat_copy_temp);
             pow = pow / 2;
         }
     }
