@@ -84,7 +84,8 @@ int allocate_matrix(matrix **mat, int rows, int cols) {
     double *inner = (double *)calloc(cols * rows, sizeof(double));
     if (outer == NULL || inner == NULL) {
         PyErr_SetString(PyExc_RuntimeError, "Could not allocate, not enough space!");
-        return -1;
+        free(mat);
+	return -1;
     }
 
     #pragma omp parallel for if(rows * cols > 100000)
@@ -135,7 +136,8 @@ int allocate_matrix_ref(matrix **mat, matrix *from, int row_offset, int col_offs
     double *inner = (double *)calloc(cols * rows, sizeof(double));
     if (outer == NULL || inner == NULL) {
         PyErr_SetString(PyExc_RuntimeError, "Could not allocate, not enough space!");
-        return -1;
+        free(mat);
+	return -1;
     } 
 
 

@@ -515,17 +515,17 @@ PyObject *Matrix61c_set_value(Matrix61c *self, PyObject* args) {
                 Py_RETURN_NONE;
             } else {
                 PyErr_SetString(PyExc_IndexError, "Specified row or column is out of range!");
-                Py_RETURN_NONE;
+                return NULL;
             }
 
         } else {
             PyErr_SetString(PyExc_TypeError, "Wrong types for arguments!");
-            Py_RETURN_NONE;
+            return NULL;
         }
 
     } else {
         PyErr_SetString(PyExc_TypeError, "Wrong number of arguments!");
-        Py_RETURN_NONE;
+        return NULL;
     }
 }
 
@@ -543,11 +543,8 @@ PyObject *Matrix61c_get_value(Matrix61c *self, PyObject* args) {
         if (rows && cols && PyLong_Check(rows) && PyLong_Check(cols)) {
             int toRows = (int)PyLong_AsLong(rows);
             int toCols = (int)PyLong_AsLong(cols);
-            //printf("%d ----- %d\n", toRows, self->mat->rows);
             if (!(toRows >= self->mat->rows || toCols >= self->mat->cols)) {
-
                 double val = get(self->mat, toRows, toCols);
-
                 PyObject *result = PyFloat_FromDouble(val);
                 return result;
 
@@ -637,7 +634,6 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                     allRefSuccess = allocate_matrix_ref(newMat, self->mat, start, 0, end - start, 1);
                 }
                 if (allRefSuccess != 0) {
-                    //RuntimeError
                     Matrix61c_dealloc(rv);
                     deallocate_matrix(*newMat);
                     return NULL;
@@ -665,7 +661,6 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
             Matrix61c *rv2 = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
             int integer2DSuccess = allocate_matrix_ref(newMat2D, self->mat, selectedRow, 0, 1, self->mat->cols);
             if (integer2DSuccess != 0) {
-                //runtime error
                 Matrix61c_dealloc(rv2);
                 deallocate_matrix(*newMat2D);
                 return NULL;
@@ -689,7 +684,6 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                 int allRefSuccess2D;
                 allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dslice, 0, end2Dslice - start2Dslice, self->mat->cols);
                 if (allRefSuccess2D != 0) {
-                    //RuntimeError
                     Matrix61c_dealloc(rv2);
                     deallocate_matrix(*newMat2D);
                     return NULL;
@@ -698,7 +692,6 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                 rv2->shape = get_shape(rv2->mat->rows, rv2->mat->cols);
                 return (PyObject *)rv2;
             } else {
-
                 PyErr_SetString(PyExc_TypeError, "PySlice_GetIndicesEx could not parse key!");
                 return NULL;
             }
@@ -742,7 +735,6 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                                 int allRefSuccess2D;
                                 allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, rowIndex, start2Dtuple, 1, end2Dtuple - start2Dtuple);
                                 if (allRefSuccess2D != 0) {
-                                    //RuntimeError
                                     Matrix61c_dealloc(rv2);
                                     deallocate_matrix(*newMat2D);
                                     return NULL;
@@ -783,7 +775,6 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                                 int allRefSuccess2D;
                                 allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple, colIndex, end2Dtuple - start2Dtuple, 1);
                                 if (allRefSuccess2D != 0) {
-                                    //RuntimeError
                                     Matrix61c_dealloc(rv2);
                                     deallocate_matrix(*newMat2D);
                                     return NULL;
@@ -825,7 +816,6 @@ PyObject *Matrix61c_subscript(Matrix61c* self, PyObject* key) {
                             int allRefSuccess2D;
                             allRefSuccess2D = allocate_matrix_ref(newMat2D, self->mat, start2Dtuple1, start2Dtuple2, end2Dtuple1 - start2Dtuple1, end2Dtuple2 - start2Dtuple2);
                             if (allRefSuccess2D != 0) {
-                                //RuntimeError
                                 Matrix61c_dealloc(rv2);
                                 deallocate_matrix(*newMat2D);
                                 return NULL;
