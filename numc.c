@@ -297,16 +297,15 @@ PyObject *Matrix61c_add(Matrix61c* self, PyObject* args) {
         if (allocateSuccess == 0) {
             Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
 
-            //rv->mat = *newMat;
-           // rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+
             int success = add_matrix(*newMat, self->mat, other->mat);
             if (success != 0) {
-		    deallocate_matrix(*newMat);
-		    return NULL;
-	    }
-	    rv->mat = *newMat;
-	    rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-	    return (PyObject *)rv;
+                deallocate_matrix(*newMat);
+                return NULL;
+            }
+            rv->mat = *newMat;
+            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+            return (PyObject *)rv;
         } else {
             deallocate_matrix(*newMat);
             return NULL;
@@ -330,15 +329,14 @@ PyObject *Matrix61c_sub(Matrix61c* self, PyObject* args) {
         int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
         if (allocateSuccess == 0) {
             Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-            //rv->mat = *newMat;
-            //rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+
             int success = sub_matrix(*newMat, self->mat, other->mat);
-	    if (success != 0) {
-		    deallocate_matrix(*newMat);
-		    return NULL;
-	    }
-	    rv->mat = *newMat;
-	    rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+            if (success != 0) {
+                deallocate_matrix(*newMat);
+                return NULL;
+            }
+            rv->mat = *newMat;
+            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
             return (PyObject *)rv;
         } else {
             deallocate_matrix(*newMat);
@@ -363,14 +361,16 @@ PyObject *Matrix61c_multiply(Matrix61c* self, PyObject *args) {
         int allocateSuccess = allocate_matrix(newMat, self->mat->rows, other->mat->cols);
         if (allocateSuccess == 0) {
             Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
+
+            int success = mul_matrix(*newMat, self->mat, other->mat);
+            if (success != 0) {
+                deallocate_matrix(*newMat);
+                PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
+
+                return NULL;
+            }
             rv->mat = *newMat;
             rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-            int success = mul_matrix(rv->mat, self->mat, other->mat);
-            if (success != 0) {
-                PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
-                deallocate_matrix(*newMat);
-		return NULL;
-            }
             return (PyObject *)rv;
         } else {
             deallocate_matrix(*newMat);
@@ -392,15 +392,14 @@ PyObject *Matrix61c_neg(Matrix61c* self) {
     int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
     if (allocateSuccess == 0) {
         Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-       // rv->mat = *newMat;
-       // rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+
         int success = neg_matrix(*newMat, self->mat);
-	if (success != 0) {
-		deallocate_matrix(*newMat);
-		return NULL;
-	}
-	rv->mat = *newMat;
-	rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+        if (success != 0) {
+            deallocate_matrix(*newMat);
+            return NULL;
+        }
+        rv->mat = *newMat;
+        rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
         return (PyObject *)rv;
     } else {
         deallocate_matrix(*newMat);
@@ -420,16 +419,15 @@ PyObject *Matrix61c_abs(Matrix61c *self) {
     int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
     if (allocateSuccess == 0) {
         Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-       // rv->mat = *newMat;
-       // rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+
         int success = abs_matrix(*newMat, self->mat);
         if (success != 0) {
-		deallocate_matrix(*newMat);
-		return NULL;
-	}
-	rv->mat = *newMat;
-	rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
-	return (PyObject *)rv;
+            deallocate_matrix(*newMat);
+            return NULL;
+        }
+        rv->mat = *newMat;
+        rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+        return (PyObject *)rv;
     } else {
         deallocate_matrix(*newMat);
         return NULL;
@@ -449,16 +447,15 @@ PyObject *Matrix61c_pow(Matrix61c *self, PyObject *pow, PyObject *optional) {
         int allocateSuccess = allocate_matrix(newMat, self->mat->rows, self->mat->cols);
         if (allocateSuccess == 0) {
             Matrix61c *rv = (Matrix61c *) Matrix61c_new(&Matrix61cType, NULL, NULL);
-           // rv->mat = *newMat;
-           // rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+
             int success = pow_matrix(*newMat, self->mat, toPow);
             if (success != 0) {
                 PyErr_SetString(PyExc_ValueError, "Not valid dimensions");
                 deallocate_matrix(*newMat);
-		return NULL;
+                return NULL;
             }
-	    rv->mat = *newMat;
-	    rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
+            rv->mat = *newMat;
+            rv->shape = get_shape(rv->mat->rows, rv->mat->cols);
             return (PyObject *)rv;
         } else {
             deallocate_matrix(*newMat);
