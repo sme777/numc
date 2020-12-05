@@ -414,19 +414,15 @@ int pow_mul2(matrix *result, matrix *mat1, matrix *mat2) {
 
     #pragma omp parallel for if(matrix1Rows * matrix2Cols > 6000)
     for (int i = 0; i < matrix1Rows; i++) {
-        for (int j = 0; j < (matrix1Cols / 8) * 8; j+=8) {
+        for (int j = 0; j < (matrix1Cols / 4) * 4; j+=4) {
             for (int w = 0; w < matrix2Cols; w++) {
                 resData[i][w] += mat1Data[i][j] * mat2Data[j][w];
                 resData[i][w] += mat1Data[i][j+1] * mat2Data[j+1][w];
                 resData[i][w] += mat1Data[i][j+2] * mat2Data[j+2][w];
                 resData[i][w] += mat1Data[i][j+3] * mat2Data[j+3][w];
-		resData[i][w] += mat1Data[i][j+4] * mat2Data[j+4][w];
-		resData[i][w] += mat1Data[i][j+5] * mat2Data[j+5][w];
-		resData[i][w] += mat1Data[i][j+6] * mat2Data[j+6][w];
-		resData[i][w] += mat1Data[i][j+7] * mat2Data[j+7][w];
             }
         }
-        for (int j = matrix1Cols - (matrix1Cols % 8); j < matrix1Cols; j++) {
+        for (int j = matrix1Cols - (matrix1Cols % 4); j < matrix1Cols; j++) {
             for (int w = 0; w < matrix2Cols; w++) {
                 resData[i][w] += mat1Data[i][j] * mat2Data[j][w];
             }
