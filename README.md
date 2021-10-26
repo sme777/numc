@@ -1,4 +1,4 @@
-# Welcome to Numc (like Numpy but by C)
+# Welcome to NumC (like NumPy but by C)
 
 
 ## Matrix functions in C
